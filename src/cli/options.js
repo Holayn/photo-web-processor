@@ -167,189 +167,7 @@ const OPTIONS = {
     description: 'Custom image processing arguments for GraphicsMagick',
     type: 'array'
   },
-  'watermark': {
-    group: 'Output options:',
-    description: 'Path to a transparent PNG to be overlaid on all images',
-    type: 'string',
-    normalize: true
-  },
-  'watermark-position': {
-    group: 'Output options:',
-    description: 'Position of the watermark',
-    choices: [
-      'Repeat', 'Center', 'NorthWest', 'North', 'NorthEast',
-      'West', 'East', 'SouthWest', 'South', 'SouthEast'
-    ]
-  },
 
-  // ------------------------------------
-  // Album options
-  // ------------------------------------
-
-  'albums-from': {
-    group: 'Album options:',
-    description: 'How files are grouped into albums',
-    type: 'array',
-    'default': ['%path']
-  },
-  'sort-albums-by': {
-    group: 'Album options:',
-    description: 'How to sort albums',
-    choices: ['title', 'start-date', 'end-date'],
-    coerce: commaSeparated,
-    'default': 'start-date'
-  },
-  'sort-albums-direction': {
-    group: 'Album options:',
-    description: 'Album sorting direction',
-    choices: ['asc', 'desc'],
-    coerce: commaSeparated,
-    'default': 'asc'
-  },
-  'sort-media-by': {
-    group: 'Album options:',
-    description: 'How to sort photos and videos',
-    choices: ['filename', 'date'],
-    coerce: commaSeparated,
-    'default': 'date'
-  },
-  'sort-media-direction': {
-    group: 'Album options:',
-    description: 'Media sorting direction',
-    choices: ['asc', 'desc'],
-    coerce: commaSeparated,
-    'default': 'asc'
-  },
-  'home-album-name': {
-    group: 'Album options:',
-    description: 'Name of the top-level album',
-    type: 'string',
-    'default': 'Home'
-  },
-  'album-page-size': {
-    group: 'Album options:',
-    description: 'Max number of files displayed on a page',
-    type: 'number',
-    'default': null
-  },
-  'album-zip-files': {
-    group: 'Album options:',
-    description: 'Create a ZIP file per album',
-    type: 'boolean',
-    'default': false
-  },
-  // 'keyword-fields': {
-  //   group: 'Album options:',
-  //   description: 'Where to look in the metadata data for keywords (for %keywords)',
-  //   type: 'array'
-  // },
-  'include-keywords': {
-    group: 'Album options:',
-    description: 'Keywords to include in %keywords',
-    type: 'array'
-  },
-  'exclude-keywords': {
-    group: 'Album options:',
-    description: 'Keywords to exclude from %keywords',
-    type: 'array'
-  },
-  // 'people-fields': {
-  //   group: 'Album options:',
-  //   description: 'Where to look in the metadata data for people names (for %people)',
-  //   type: 'array'
-  // },
-  'include-people': {
-    group: 'Album options:',
-    description: 'Names to include in %people',
-    type: 'array'
-  },
-  'exclude-people': {
-    group: 'Album options:',
-    description: 'Names to exclude from %people',
-    type: 'array'
-  },
-  'album-previews': {
-    group: 'Album options:',
-    description: 'How previews are selected',
-    choices: ['first', 'spread', 'random'],
-    'default': 'first'
-  },
-
-  // ------------------------------------
-  // Website options
-  // ------------------------------------
-
-  'index': {
-    group: 'Website options:',
-    description: 'Filename of the home page',
-    type: 'string',
-    'default': 'index.html'
-  },
-  'albums-output-folder': {
-    group: 'Website options:',
-    description: 'Output subfolder for HTML albums (default: website root)',
-    type: 'string',
-    'default': '.'
-  },
-  'theme': {
-    group: 'Website options:',
-    description: 'Name of a built-in gallery theme',
-    choices: ['classic', 'cards', 'mosaic', 'flow'],
-    'default': 'classic'
-  },
-  'theme-path': {
-    group: 'Website options:',
-    description: 'Path to a custom theme',
-    type: 'string',
-    normalize: true
-  },
-  'theme-style': {
-    group: 'Website options:',
-    description: 'Path to a custom LESS/CSS file for additional styles',
-    type: 'string',
-    normalize: true
-  },
-  'theme-settings': {
-    group: 'Website options:',
-    description: 'Path to a JSON file with theme settings',
-    type: 'string',
-    normalize: true
-  },
-  'title': {
-    group: 'Website options:',
-    description: 'Website title',
-    type: 'string',
-    'default': 'Photo album'
-  },
-  'footer': {
-    group: 'Website options:',
-    description: 'Text or HTML footer',
-    type: 'string',
-    'default': null
-  },
-  'google-analytics': {
-    group: 'Website options:',
-    description: 'Code for Google Analytics tracking',
-    type: 'string'
-  },
-  'embed-exif': {
-    group: 'Website options:',
-    description: 'Embed the exif metadata for each image into the gallery page',
-    type: 'boolean',
-    'default': false
-  },
-  'locale': {
-    group: 'Website options:',
-    description: 'Locale for regional settings like dates',
-    type: 'string',
-    'default': 'en'
-  },
-  'seo-location': {
-    group: 'Website options:',
-    description: 'Location where the site will be hosted. If provided, sitemap.xml and robots.txt will be created.',
-    type: 'string',
-    'default': null
-  },
 
   // ------------------------------------
   // Misc options
@@ -389,50 +207,10 @@ const OPTIONS = {
 
   'dry-run': {
     group: 'Misc options:',
-    description: "Update the index, but don't create the media files / website",
+    description: "Update the index, but don't create the media files",
     type: 'boolean',
     'default': false
   },
-
-  // ------------------------------------
-  // Deprecated options
-  // ------------------------------------
-
-  'original-photos': {
-    group: 'Deprecated:',
-    description: 'Copy and allow download of full-size photos',
-    type: 'boolean'
-  },
-  'original-videos': {
-    group: 'Deprecated:',
-    description: 'Copy and allow download of full-size videos',
-    type: 'boolean'
-  },
-  'albums-date-format': {
-    group: 'Deprecated:',
-    description: 'How albums are named in <date> mode [moment.js pattern]'
-  },
-  'css': {
-    group: 'Deprecated:',
-    description: 'Path to a custom provided CSS/LESS file for styling',
-    normalize: true
-  },
-  'download-photos': {
-    group: 'Deprecated:',
-    description: 'Target of the photo download links',
-    choices: ['large', 'copy', 'symlink', 'link']
-  },
-  'download-videos': {
-    group: 'Deprecated:',
-    description: 'Target of the video download links',
-    choices: ['large', 'copy', 'symlink', 'link']
-  },
-  'download-link-prefix': {
-    group: 'Deprecated:',
-    description: 'Path or URL prefix for linked downloads',
-    type: 'string'
-  }
-
 }
 
 // explicitly pass <process.argv> so we can unit test this logic
@@ -461,7 +239,7 @@ exports.get = (args) => {
 
   // Default database file
   if (!opts.databaseFile) {
-    opts.databaseFile = path.join(opts.output, 'thumbsup.db')
+    opts.databaseFile = path.join(opts.output, 'photos.db')
   }
 
   // Default log file
@@ -481,41 +259,13 @@ exports.get = (args) => {
     opts.linkPrefix = path.relative(opts.output, opts.input)
   }
 
-  // Convert deprecated --download
-  if (opts.originalPhotos) opts.downloadPhotos = 'copy'
-  if (opts.originalVideos) opts.downloadVideos = 'copy'
-  if (opts.downloadPhotos) opts.photoDownload = opts.downloadPhotos
-  if (opts.downloadVideos) opts.videoDownload = opts.downloadVideos
-  if (opts.photoDownload === 'large') opts.photoDownload = 'resize'
-  if (opts.videoDownload === 'large') opts.videoDownload = 'resize'
-
-  // Convert deprecated --albums-from
-  replaceInArray(opts.albumsFrom, 'folders', '%path')
-  replaceInArray(opts.albumsFrom, 'date', `{${opts.albumsDateFormat}}`)
-
-  // Convert deprecated --css
-  if (opts.css) opts.themeStyle = opts.css
-
   // Add a dash prefix to any --gm-args value
-  // We can't specify the prefix on the CLI otherwise the parser thinks it's a thumbsup arg
+  // We can't specify the prefix on the CLI otherwise the parser thinks it's a photo-web-processor arg
   if (opts.gmArgs) {
     opts.gmArgs = opts.gmArgs.map(val => `-${val}`)
   }
 
   return opts
-}
-
-function replaceInArray (list, match, replacement) {
-  for (var i = 0; i < list.length; ++i) {
-    if (list[i] === match) {
-      list[i] = replacement
-    }
-  }
-}
-
-function commaSeparated (value) {
-  if (value.indexOf(',') === -1) return value
-  return value.split(',')
 }
 
 function changeExtension (file, ext) {

@@ -1,6 +1,0 @@
-recursive: true
-file:
-  - test/helpers.js
-  - test/log.js
-reporter: list
-parallel: false

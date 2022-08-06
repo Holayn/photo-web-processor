@@ -1,6 +1,5 @@
 const Listr = require('listr')
 const steps = require('./steps/index')
-const website = require('./website/website')
 const Problems = require('./problems')
 
 exports.build = function (opts, done) {
@@ -11,10 +10,10 @@ exports.build = function (opts, done) {
     {
       title: 'Indexing folder',
       task: (ctx, task) => {
-        return steps.index(opts, (err, files, album) => {
+        return steps.index(opts, (err, files) => {
           if (!err) {
             ctx.files = files
-            ctx.album = album
+            ctx.problems = new Problems()
           }
         })
       }
@@ -32,31 +31,6 @@ exports.build = function (opts, done) {
         }
       }
     },
-    {
-      title: 'Updating ZIP files',
-      enabled: (ctx) => opts.albumZipFiles,
-      skip: () => opts.dryRun,
-      task: (ctx) => {
-        return steps.zipAlbums(ctx.album, opts.output)
-      }
-    },
-    {
-      title: 'Cleaning up',
-      enabled: (ctx) => opts.cleanup,
-      skip: () => opts.dryRun,
-      task: (ctx) => {
-        return steps.cleanup(ctx.files, opts.output)
-      }
-    },
-    {
-      title: 'Creating website',
-      skip: () => opts.dryRun,
-      task: (ctx) => new Promise((resolve, reject) => {
-        website.build(ctx.album, opts, err => {
-          err ? reject(err) : resolve()
-        })
-      })
-    }
   ], {
     renderer: renderer,
     dateFormat: false
@@ -64,7 +38,6 @@ exports.build = function (opts, done) {
 
   tasks.run().then(ctx => {
     done(null, {
-      album: ctx.album,
       problems: ctx.problems
     })
   }).catch(err => {

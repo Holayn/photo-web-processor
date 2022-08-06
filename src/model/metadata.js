@@ -1,7 +1,7 @@
 /*
 --------------------------------------------------------------------------------
 Standardised metadata for a given image or video
-This is based on parsing "provider data" such as Exiftool or Picasa
+This is based on parsing "provider data" such as Exiftool
 --------------------------------------------------------------------------------
 */
 
@@ -22,16 +22,15 @@ const FILENAME_DATE_REGEX = /\d{4}[_\-.\s]?(\d{2}[_\-.\s]?){5}\..{3,4}/
 const FILENAME_DATE_FORMAT = 'YYYYMMDD HHmmss'
 
 class Metadata {
-  constructor (exiftool, picasa, opts) {
+  constructor (exiftool, opts) {
     // standardise metadata
     this.date = getDate(exiftool)
-    this.caption = caption(exiftool, picasa)
-    this.keywords = keywords(exiftool, picasa)
+    this.caption = caption(exiftool)
+    this.keywords = keywords(exiftool)
     this.people = people(exiftool)
     this.video = video(exiftool)
     this.animated = animated(exiftool)
     this.rating = rating(exiftool)
-    this.favourite = favourite(picasa)
     const size = dimensions(exiftool)
     this.width = size.width
     this.height = size.height
@@ -78,9 +77,8 @@ function getFilenameDate (exif) {
   return null
 }
 
-function caption (exif, picasa) {
-  return picasaValue(picasa, 'caption') ||
-    tagValue(exif, 'EXIF', 'ImageDescription') ||
+function caption (exif) {
+  return tagValue(exif, 'EXIF', 'ImageDescription') ||
     tagValue(exif, 'IPTC', 'Caption-Abstract') ||
     tagValue(exif, 'IPTC', 'Headline') ||
     tagValue(exif, 'XMP', 'Description') ||
@@ -89,11 +87,10 @@ function caption (exif, picasa) {
     tagValue(exif, 'QuickTime', 'Title')
 }
 
-function keywords (exif, picasa) {
+function keywords (exif) {
   const sources = [
     tagValue(exif, 'IPTC', 'Keywords'),
-    tagValue(exif, 'XMP', 'Subject'),
-    picasaValue(picasa, 'keywords')
+    tagValue(exif, 'XMP', 'Subject')
   ]
   return _.chain(sources).flatMap(makeArray).uniq().value()
 }
@@ -117,18 +114,9 @@ function rating (exif) {
   return exif.XMP['Rating'] || 0
 }
 
-function favourite (picasa) {
-  return picasaValue(picasa, 'star') === 'yes'
-}
-
 function tagValue (exif, type, name) {
   if (!exif[type]) return null
   return exif[type][name]
-}
-
-function picasaValue (picasa, name) {
-  if (typeof picasa !== 'object') return null
-  return picasa[name]
 }
 
 function makeArray (value) {
