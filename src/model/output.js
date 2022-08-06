@@ -15,19 +15,17 @@ exports.paths = function (filepath, mediaType, opts) {
 function image (filepath, opts) {
   return {
     thumbnail: relationship(filepath, 'photo:thumbnail', opts),
-    // small: relationship(filepath, 'photo:small', opts),
     large: relationship(filepath, shortRel('image', opts.photoPreview), opts),
-    download: relationship(filepath, shortRel('image', opts.photoDownload), opts)
+    original: relationship(filepath, 'fs:symlink', opts)
   }
 }
 
 function video (filepath, opts) {
   return {
     thumbnail: relationship(filepath, 'video:thumbnail', opts),
-    // small: relationship(filepath, 'video:small', opts),
-    // large: relationship(filepath, 'video:poster', opts),
+    large: relationship(filepath, 'video:poster', opts),
     video: relationship(filepath, shortRel('video', opts.videoPreview), opts),
-    download: relationship(filepath, shortRel('video', opts.videoDownload), opts)
+    original: relationship(filepath, 'fs:symlink', opts)
   }
 }
 
