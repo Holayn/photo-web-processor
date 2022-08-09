@@ -13,7 +13,6 @@ exports.build = function (opts, done) {
         return steps.index(opts, (err, files) => {
           if (!err) {
             ctx.files = files
-            ctx.problems = new Problems()
           }
         })
       }

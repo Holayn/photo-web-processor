@@ -239,7 +239,7 @@ exports.get = (args) => {
 
   // Default database file
   if (!opts.databaseFile) {
-    opts.databaseFile = path.join(opts.output, 'photos.db')
+    opts.databaseFile = path.join(opts.output, 'index.db')
   }
 
   // Default log file

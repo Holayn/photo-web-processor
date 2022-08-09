@@ -15,7 +15,7 @@ class Index {
     // create the database if it doesn't exist
     fs.mkdirpSync(path.dirname(indexPath))
     this.db = new Database(indexPath, {})
-    this.db.exec('CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, timestamp INTEGER, metadata BLOB)')
+    this.db.exec('CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, timestamp INTEGER, metadata BLOB, processed_path_small TEXT, processed_path_large TEXT, processed_path_original TEXT)')
   }
 
   /*
@@ -27,7 +27,7 @@ class Index {
 
     // prepared database statements
     const selectStatement = this.db.prepare('SELECT path, timestamp FROM files')
-    const insertStatement = this.db.prepare('INSERT OR REPLACE INTO files VALUES (?, ?, ?)')
+    const insertStatement = this.db.prepare('INSERT OR REPLACE INTO files (path, timestamp, metadata) VALUES (?, ?, ?)')
     const deleteStatement = this.db.prepare('DELETE FROM files WHERE path = ?')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
@@ -98,6 +98,20 @@ class Index {
   */
   vacuum () {
     this.db.exec('VACUUM')
+  }
+
+  addProcessedPath(file, pathType, realDest) {
+    const convertPath = (filePath) => {
+      const realDestFileName = path.basename(realDest);
+      return path.join(path.dirname(filePath), realDestFileName);
+    }
+    if (pathType === 'small') {
+      this.db.prepare('UPDATE files SET processed_path_small = ? WHERE path = ?').run(convertPath(file.output.small.path), file.path);
+    } else if (pathType === 'large') {
+      this.db.prepare('UPDATE files SET processed_path_large = ? WHERE path = ?').run(convertPath(file.output.large.path), file.path);
+    } else if (pathType === 'original') {
+      this.db.prepare('UPDATE files SET processed_path_original = ? WHERE path = ?').run(convertPath(file.output.original.path), file.path);
+    }
   }
 }
 
