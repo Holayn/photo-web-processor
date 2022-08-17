@@ -8,3 +8,4 @@ thumbsup.db
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+.configs

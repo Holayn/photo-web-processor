@@ -74,6 +74,9 @@ exports.create = function (files, opts, problems) {
           }
         }
       }
+      else if (!!destDate) {
+        new Index(opts.databaseFile).addProcessedPath(f, out, realDest);
+      }
     })
   })
   // back into an array
