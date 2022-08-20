@@ -16,15 +16,17 @@ function image (filepath, opts) {
   return {
     small: relationship(filepath, 'photo:small', opts),
     large: relationship(filepath, shortRel('image', opts.photoPreview), opts),
-    original: relationship(filepath, 'fs:symlink', opts)
+    original: relationship(filepath, 'fs:symlink', opts),
+    conversion: relationship(filepath, 'photo:conversion', opts),
   }
 }
 
 function video (filepath, opts) {
   return {
     small: relationship(filepath, 'video:small', opts),
-    large: relationship(filepath, shortRel('video', opts.videoPreview), opts),
-    original: relationship(filepath, 'fs:symlink', opts)
+    large: relationship(filepath, 'video:large', opts),
+    original: relationship(filepath, 'fs:symlink', opts),
+    conversion: relationship(filepath, 'video:conversion', opts),
   }
 }
 

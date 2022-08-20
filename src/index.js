@@ -31,9 +31,9 @@ exports.build = function (opts, done) {
       }
     },
     {
-      title: 'Creating thumbnails',
+      title: 'Resizing images for the web',
       task: (ctx, task) => {
-        const tasks = steps.smalls(ctx.files, ctx.problems, opts, task)
+        const tasks = steps.resize(ctx.files, ctx.problems, opts, task)
         if (!opts.dryRun) {
           return tasks
         } else {

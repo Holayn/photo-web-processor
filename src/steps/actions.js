@@ -38,6 +38,15 @@ exports.createMap = function (opts) {
   return {
     'fs:copy': (task, done) => fs.copy(task.src, task.dest, done),
     'fs:symlink': (task, done) => fs.symlink(task.src, task.dest, done),
+    'photo:conversion': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
+        done();
+      } else {
+        downsize.image(src, dest, {
+          quality: 100,
+        }, done);
+      }
+    },
     'photo:thumbnail': (task, done) => downsize.image(task.src, task.dest, thumbnail, done),
     'photo:small': ({ src, dest, file }, done) => {
       if (!file.isJpg()) {
@@ -95,6 +104,16 @@ exports.createMap = function (opts) {
       } else {
         return downsize.video(src, dest, videoOpts, done);
       }
-    }
+    },
+    'video:large': ({ src, dest, file }, done) => {
+      return fs.symlink(src, dest, done);
+    },
+    'video:conversion': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
+        done();
+      } else {
+        return downsize.video(src, dest, videoOpts, done);
+      }
+    },
   }
 }

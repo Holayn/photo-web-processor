@@ -13,19 +13,22 @@ function create(files, opts, problems) {
   const sourceFiles = new Set()
   const actionMap = actions.createMap(opts)
   files.forEach(f => {
-    const outputs = ['large', 'original'];
+    const outputs = ['conversion', 'original'];
     outputs.forEach(outputType => {
       const output = f.output[outputType];
-      const action = actionMap[output.rel];
-      const srcPath = path.join(opts.input, f.path);
-      const destPath = path.join(opts.output, output.path);
-      const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, (dest) => {
-        // Update index with path of processed file.
-        new Index(opts.databaseFile).addProcessedPath(f, outputType, dest);
-      });
-      if (task) {
-        tasks[dest] = task;
-        sourceFiles.add(sourceFile);
+
+      if (output) {
+        const action = actionMap[output.rel];
+        const srcPath = path.join(opts.input, f.path);
+        const destPath = path.join(opts.output, output.path);
+        const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, (dest) => {
+          // Update index with path of processed file.
+          new Index(opts.databaseFile).addProcessedPath(f, outputType, dest);
+        });
+        if (task) {
+          tasks[dest] = task;
+          sourceFiles.add(sourceFile);
+        }
       }
     });
   });
