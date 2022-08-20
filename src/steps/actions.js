@@ -56,10 +56,15 @@ exports.createMap = function (opts) {
       }
     },
     'photo:large': ({ src, dest, file }, done) => {
+      let height = file.isHorizontalImage() ? largeSize : null;
+      const width = file.isVerticalImage() ? largeSize : null;
+      if (height === null && width === null) {
+        height = largeSize;
+      }
       if (file.isWebSupported()) {
         if (!file.isJpg()) {
           sharp(src)
-          .resize(null, large.height)
+          .resize(width, height)
           .jpeg({
             quality: 90,
           })
@@ -67,13 +72,17 @@ exports.createMap = function (opts) {
           .then(() => done());
         } else {
           sharp(src)
-          .resize(null, large.height)
+          .resize(width, height)
           .toFile(dest)
           .then(() => done());
         }
       }
       else {
-        return downsize.image(src, dest, large, done);
+        return downsize.image(src, dest, {
+          ...large,
+          height,
+          width,
+        }, done);
       }
     },
     'video:thumbnail': (task, done) => downsize.still(task.src, task.dest, thumbnail, done),

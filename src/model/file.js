@@ -45,6 +45,14 @@ class File {
   isJpg() {
     return !!this.extension.match(/(jpg)$/i);
   }
+
+  isVerticalImage() {
+    return this.meta.height > this.meta.width;
+  }
+
+  isHorizontalImage() {
+    return this.meta.width > this.meta.height;
+  }
 }
 
 function fileDate (dbEntry) {
