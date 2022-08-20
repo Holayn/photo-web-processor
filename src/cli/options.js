@@ -71,25 +71,21 @@ const OPTIONS = {
     group: 'Output options:',
     description: 'Pixel height of the small photos',
     type: 'number',
-    'default': 300
   },
   'large-size': {
     group: 'Output options:',
     description: 'Pixel height of the fullscreen photos',
     type: 'number',
-    'default': 1000
   },
   'photo-quality': {
     group: 'Output options:',
     description: 'Quality of the resized/converted photos',
     type: 'number',
-    'default': 90
   },
   'video-quality': {
     group: 'Output options:',
     description: 'Quality of the converted video (percent)',
     type: 'number',
-    'default': 75
   },
   'video-bitrate': {
     group: 'Output options:',

@@ -1,12 +1,13 @@
 const downsize = require('thumbsup-downsize')
 const fs = require('fs-extra')
+const sharp = require('sharp');
 
 exports.createMap = function (opts) {
   const thumbSize = opts.thumbSize || 120
-  const smallSize = opts.smallSize || 300
-  const largeSize = opts.largeSize || 1000
+  const smallSize = opts.smallSize || 480
+  const largeSize = opts.largeSize || 1440
   const defaultOptions = {
-    quality: opts.photoQuality,
+    quality: opts.photoQuality || 90,
     args: opts.gmArgs
   }
   const watermark = (!opts.watermark) ? null : {
@@ -31,18 +32,60 @@ exports.createMap = function (opts) {
   })
   const videoOpts = {
     format: opts.videoFormat,
-    quality: opts.videoQuality,
+    quality: opts.videoQuality || 75,
     bitrate: opts.videoBitrate
   }
   return {
     'fs:copy': (task, done) => fs.copy(task.src, task.dest, done),
     'fs:symlink': (task, done) => fs.symlink(task.src, task.dest, done),
     'photo:thumbnail': (task, done) => downsize.image(task.src, task.dest, thumbnail, done),
-    'photo:small': (task, done) => downsize.image(task.src, task.dest, small, done),
-    'photo:large': (task, done) => downsize.image(task.src, task.dest, large, done),
+    'photo:small': ({ src, dest, file }, done) => {
+      if (!file.isJpg()) {
+        sharp(src)
+        .resize(null, small.height)
+        .jpeg({
+          quality: 90,
+        })
+        .toFile(dest)
+        .then(() => done());
+      } else {
+        sharp(src)
+        .resize(null, small.height)
+        .toFile(dest)
+        .then(() => done());
+      }
+    },
+    'photo:large': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
+        if (!file.isJpg()) {
+          sharp(src)
+          .resize(null, large.height)
+          .jpeg({
+            quality: 90,
+          })
+          .toFile(dest)
+          .then(() => done());
+        } else {
+          sharp(src)
+          .resize(null, large.height)
+          .toFile(dest)
+          .then(() => done());
+        }
+      }
+      else {
+        return downsize.image(src, dest, large, done);
+      }
+    },
     'video:thumbnail': (task, done) => downsize.still(task.src, task.dest, thumbnail, done),
     'video:small': (task, done) => downsize.still(task.src, task.dest, small, done),
     'video:poster': (task, done) => downsize.still(task.src, task.dest, large, done),
-    'video:resized': (task, done) => downsize.video(task.src, task.dest, videoOpts, done)
+    'video:resized': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
+        // Return original video, don't bother resizing it.
+        return fs.symlink(src, dest, done);
+      } else {
+        return downsize.video(src, dest, videoOpts, done);
+      }
+    }
   }
 }

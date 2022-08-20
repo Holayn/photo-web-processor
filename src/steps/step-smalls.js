@@ -8,26 +8,23 @@ exports.run = function (files, problems, opts, parentTask) {
   return createTasks(create(files, opts, problems), opts, parentTask);
 }
 
-function create(files, opts, problems) {
+function create (files, opts, problems) {
   const tasks = {}
   const sourceFiles = new Set()
   const actionMap = actions.createMap(opts)
   files.forEach(f => {
-    const outputs = ['large', 'original'];
-    outputs.forEach(outputType => {
-      const output = f.output[outputType];
-      const action = actionMap[output.rel];
-      const srcPath = path.join(opts.input, f.path);
-      const destPath = path.join(opts.output, output.path);
-      const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, (dest) => {
-        // Update index with path of processed file.
-        new Index(opts.databaseFile).addProcessedPath(f, outputType, dest);
-      });
-      if (task) {
-        tasks[dest] = task;
-        sourceFiles.add(sourceFile);
-      }
+    const output = f.output.small;
+    const action = actionMap[output.rel];
+    const srcPath = path.join(opts.output, f.output.large.path);
+    const destPath = path.join(opts.output, output.path);
+    const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, (dest) => {
+      // Update index with path of processed file.
+      new Index(opts.databaseFile).addProcessedPath(f, 'small', dest);
     });
+    if (task) {
+      tasks[dest] = task;
+      sourceFiles.add(sourceFile);
+    }
   });
   const list = Object.keys(tasks).map(dest => tasks[dest])
   info('Calculated required tasks', {

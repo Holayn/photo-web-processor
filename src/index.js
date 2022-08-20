@@ -18,10 +18,22 @@ exports.build = function (opts, done) {
       }
     },
     {
-      title: 'Resizing media',
+      title: 'Converting to web-friendly, handling original files',
       task: (ctx, task) => {
         ctx.problems = new Problems()
         const tasks = steps.process(ctx.files, ctx.problems, opts, task)
+        if (!opts.dryRun) {
+          return tasks
+        } else {
+          task.skip()
+          return null
+        }
+      }
+    },
+    {
+      title: 'Creating thumbnails',
+      task: (ctx, task) => {
+        const tasks = steps.smalls(ctx.files, ctx.problems, opts, task)
         if (!opts.dryRun) {
           return tasks
         } else {

@@ -100,16 +100,16 @@ class Index {
     this.db.exec('VACUUM')
   }
 
-  addProcessedPath(file, pathType, realDest) {
+  addProcessedPath(file, outputType, realDest) {
     const convertPath = (filePath) => {
       const realDestFileName = path.basename(realDest);
       return path.join(path.dirname(filePath), realDestFileName);
     }
-    if (pathType === 'small') {
+    if (outputType === 'small') {
       this.db.prepare('UPDATE files SET processed_path_small = ? WHERE path = ?').run(convertPath(file.output.small.path), file.path);
-    } else if (pathType === 'large') {
+    } else if (outputType === 'large') {
       this.db.prepare('UPDATE files SET processed_path_large = ? WHERE path = ?').run(convertPath(file.output.large.path), file.path);
-    } else if (pathType === 'original') {
+    } else if (outputType === 'original') {
       this.db.prepare('UPDATE files SET processed_path_original = ? WHERE path = ?').run(convertPath(file.output.original.path), file.path);
     }
   }
