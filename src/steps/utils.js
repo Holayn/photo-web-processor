@@ -4,12 +4,12 @@ const fs = require('fs-extra')
 const path = require('path')
 const ListrWorkQueue = require('../components/listr-work-queue/index')
 
-function createTasks(jobs, opts, parentTask) {
+function createTasks(jobs, opts, parentTask, concurrency) {
   // wrap each job in a Listr task that returns a Promise
   const tasks = jobs.map(job => listrTaskFromJob(job, opts.output));
   const originalTaskTitle = parentTask.title;
   const listr = new ListrWorkQueue(tasks, {
-    concurrent: opts.concurrency,
+    concurrent: concurrency || 1,
     update: (done, total) => {
       const progress = done === total ? '' : `(${done}/${total})`
       parentTask.title = `${originalTaskTitle}: Processing media ${progress}`

@@ -18,10 +18,22 @@ exports.build = function (opts, done) {
       }
     },
     {
-      title: 'Converting to web-friendly',
+      title: 'Converting photos to web-friendly',
       task: (ctx, task) => {
         ctx.problems = new Problems()
-        const tasks = steps.process(ctx.files, ctx.problems, opts, task)
+        const tasks = steps.processImages(ctx.files, ctx.problems, opts, task, opts.concurrency)
+        if (!opts.dryRun) {
+          return tasks
+        } else {
+          task.skip()
+          return null
+        }
+      }
+    },
+    {
+      title: 'Converting videos to web-friendly',
+      task: (ctx, task) => {
+        const tasks = steps.processVideos(ctx.files, ctx.problems, opts, task)
         if (!opts.dryRun) {
           return tasks
         } else {

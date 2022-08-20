@@ -11,7 +11,7 @@ function create(files, opts, problems) {
   const tasks = {}
   const sourceFiles = new Set()
   const actionMap = actions.createMap(opts)
-  files.forEach(f => {
+  files.filter(f => f.isVideo).forEach(f => {
     if (!f.isWebSupported()) {
       const outputs = ['conversion'];
       outputs.forEach(outputType => {
