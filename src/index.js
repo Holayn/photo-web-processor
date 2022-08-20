@@ -18,10 +18,22 @@ exports.build = function (opts, done) {
       }
     },
     {
-      title: 'Converting to web-friendly, handling original files',
+      title: 'Converting to web-friendly',
       task: (ctx, task) => {
         ctx.problems = new Problems()
         const tasks = steps.process(ctx.files, ctx.problems, opts, task)
+        if (!opts.dryRun) {
+          return tasks
+        } else {
+          task.skip()
+          return null
+        }
+      }
+    },
+    {
+      title: 'Handling original files',
+      task: (ctx, task) => {
+        const tasks = steps.originals(ctx.files, ctx.problems, opts, task)
         if (!opts.dryRun) {
           return tasks
         } else {
