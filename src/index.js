@@ -55,7 +55,7 @@ exports.build = function (opts, done) {
       }
     },
     {
-      title: 'Resizing images for the web',
+      title: 'Resizing images for the web, generating video covers',
       task: (ctx, task) => {
         const tasks = steps.resize(ctx.files, ctx.problems, opts, task)
         if (!opts.dryRun) {
