@@ -4,8 +4,8 @@ const actions = require('./actions')
 const { createFileProcessTask, createTasks } = require('./utils');
 const Index = require('../components/index/index')
 
-exports.run = function (files, problems, opts, parentTask) {
-  return createTasks(create(files, opts, problems), opts, parentTask);
+exports.run = function (files, problems, opts, parentTask, concurrency) {
+  return createTasks(create(files, opts, problems), opts, parentTask, concurrency);
 }
 
 function create (files, opts, problems) {
