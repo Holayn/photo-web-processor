@@ -40,12 +40,12 @@ exports.run = function (opts, callback) {
         files.push(model)
       }
 
-      callback(null, files)
+      callback(null, files, index)
       observer.complete()
     })
 
     emitter.on('done', stats => {
-      callback(null, files)
+      callback(null, files, index)
       observer.complete()
     })
   })

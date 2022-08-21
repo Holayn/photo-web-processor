@@ -9,13 +9,29 @@ exports.build = function (opts, done) {
   const tasks = new Listr([
     {
       title: 'Indexing folder',
-      task: (ctx, task) => {
-        return steps.index(opts, (err, files) => {
+      task: (ctx) => {
+        return steps.index(opts, (err, files, index) => {
           if (!err) {
-            ctx.files = files
+            ctx.files = files;
+            ctx.index = index;
           }
         })
       }
+    },
+    {
+      title: 'Performing additional filtering',
+      task: (ctx) => {
+        const files = [];
+        ctx.files.forEach(f => {
+          if (f.isAppleLivePhoto()) {
+            // Clear out any paths of previous live photos that may have set due to being processed.
+            ctx.index.db.prepare('UPDATE files SET processed_path_small = null, processed_path_large = null, processed_path_original = null WHERE path = ?').run(f.path);
+          } else {
+            files.push(f);
+          }
+        });
+        ctx.files = files;
+      },
     },
     {
       title: 'Converting photos to web-friendly',

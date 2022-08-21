@@ -42,6 +42,10 @@ class File {
     }
   }
 
+  isAppleLivePhoto() {
+    return this.isVideo && this.meta.appleLivePhoto;
+  }
+
   isJpg() {
     return !!this.extension.match(/(jpg)$/i);
   }
