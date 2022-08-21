@@ -1,4 +1,5 @@
 const downsize = require('thumbsup-downsize')
+const warn = require('debug')('thumbsup:warn')
 const fs = require('fs-extra')
 const sharp = require('sharp');
 
@@ -56,12 +57,14 @@ exports.createMap = function (opts) {
           quality: 90,
         })
         .toFile(dest)
-        .then(() => done());
+        .then(() => done())
+        .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
       } else {
         sharp(src)
         .resize(null, small.height)
         .toFile(dest)
-        .then(() => done());
+        .then(() => done())
+        .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
       }
     },
     'photo:large': ({ src, dest, file }, done) => {
@@ -78,12 +81,14 @@ exports.createMap = function (opts) {
             quality: 90,
           })
           .toFile(dest)
-          .then(() => done());
+          .then(() => done())
+          .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
         } else {
           sharp(src)
           .resize(width, height)
           .toFile(dest)
-          .then(() => done());
+          .then(() => done())
+          .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
         }
       }
       else {
