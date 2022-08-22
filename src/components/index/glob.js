@@ -32,6 +32,25 @@ exports.find = function (rootFolder, options, callback) {
   stream.on('end', () => callback(null, entries))
 }
 
+exports.findAllPhotos = function (rootFolder, options, callback) {
+  const entries = {}
+  const pattern = new GlobPattern({
+    include: '**/**',
+    exclude: [],
+    extensions: PHOTO_EXT,
+  })
+  const stream = readdir.stream(rootFolder, {
+    filter: file => pattern.match(file.path),
+    deep: dir => pattern.canTraverse(dir.path),
+    stats: true,
+    basePath: '',
+    sep: '/'
+  })
+  stream.on('data', stats => { entries[stats.path] = stats.mtime.getTime() })
+  stream.on('error', err => warn(err.message))
+  stream.on('end', () => callback(null, entries))
+}
+
 exports.supportedExtensions = function (options) {
   const extensions = []
   if (options.includePhotos !== false) Array.prototype.push.apply(extensions, PHOTO_EXT)
