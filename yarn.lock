@@ -340,7 +340,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^3.2.0":
+"async@npm:^3.2.0, async@npm:^3.2.3":
   version: 3.2.4
   resolution: "async@npm:3.2.4"
   checksum: 43d07459a4e1d09b84a20772414aa684ff4de085cbcaec6eea3c7a8f8150e8c62aa6cd4e699fe8ee93c3a5b324e777d34642531875a0817a35697522c1b02e89
@@ -869,7 +869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.3":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -3374,7 +3374,7 @@ __metadata:
     slugify: ^1.5.0
     standard: ^12.0.1
     through2: ^4.0.2
-    thumbsup-downsize: ^2.4.3
+    thumbsup-downsize: "https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha.tar.gz"
     url-join: ^4.0.1
     yargs: ^16.2.0
     zen-observable: ^0.8.15
@@ -4373,17 +4373,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"thumbsup-downsize@npm:^2.4.3":
+"thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha.tar.gz":
   version: 2.4.3
-  resolution: "thumbsup-downsize@npm:2.4.3"
+  resolution: "thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha.tar.gz"
   dependencies:
-    async: ^3.2.0
-    debug: ^4.3.1
+    async: ^3.2.3
+    debug: ^4.3.4
     gm: ^1.23.1
     mkdirp: ^1.0.4
     split: ^1.0.1
     tmp: ^0.2.1
-  checksum: 36b954d6e7f4ce9942bbd2ff7256f6341a9d8c8ae58be7ccfe203fdd4c10938f78f6673681a6d2a7099216c7e2091c630c85533ae434408ba2df656d6e04fd25
+  checksum: 2d28efad40e50ce138d5922c1436df4cb7720580a82afd6d7acf46182169378b11b06aa7cfb79fa486b6d400064c51c0208c8da25e4a0680e89afefc20c7ddce
   languageName: node
   linkType: hard
 

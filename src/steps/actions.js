@@ -32,6 +32,7 @@ exports.createMap = function (opts) {
     seek: seek
   })
   const videoOpts = {
+    extraFfmpegArgs: ['-pix_fmt', 'yuv420p'],
     format: opts.videoFormat,
     quality: opts.videoQuality || 75,
     bitrate: opts.videoBitrate
