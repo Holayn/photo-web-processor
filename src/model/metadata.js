@@ -61,7 +61,9 @@ function getMetaDate (exif) {
     tagValue(exif, 'H264', 'DateTimeOriginal') ||
     tagValue(exif, 'QuickTime', 'ContentCreateDate') ||
     tagValue(exif, 'QuickTime', 'CreationDate') ||
-    tagValue(exif, 'QuickTime', 'CreateDate')
+    tagValue(exif, 'QuickTime', 'CreateDate') ||
+    tagValue(exif, 'XMP', 'CreateDate') ||
+    tagValue(exif, 'XMP', 'DateCreated')
   if (date) {
     const parsed = moment(date, EXIF_DATE_FORMAT)
     if (parsed.isValid()) return parsed
