@@ -6,6 +6,7 @@ const yargs = require('yargs');
 const Observable = require('zen-observable')
 const exiftool = require('../src/components/exiftool/parallel')
 const globber = require('../src/components/index/glob')
+const Index = require('../src/components/index/index')
 
 const args = process.argv.slice(2);
 yargs(args)
@@ -59,6 +60,30 @@ yargs(args)
                 observer.complete();
               });
             });
+          });
+        }
+      },
+    ], {
+      renderer: 'update',
+      dateFormat: false,
+    });
+  
+    tasks.run();
+  })
+  .command('update-metadata-fields', `Update fields that source from the metadata field.`, {
+    source: {
+      demand: true,
+      description: 'System filepath to the images/videos',
+      type: 'string',
+    },
+  }, (options) => {
+    const tasks = new Listr([
+      {
+        title: 'Running',
+        task: (ctx) => {
+          return new Observable(observer => {
+            new Index(options.source).updateMetadataFields();
+            observer.complete();
           });
         }
       },

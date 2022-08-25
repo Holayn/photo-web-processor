@@ -7,7 +7,7 @@ Caches the results in <thumbsup.db> for faster re-runs
 
 const Index = require('../components/index/index')
 const info = require('debug')('thumbsup:info')
-const Metadata = require('../model/metadata')
+const { Metadata } = require('../model/metadata')
 const File = require('../model/file')
 const Observable = require('zen-observable')
 

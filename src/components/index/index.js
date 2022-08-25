@@ -3,6 +3,7 @@ const Database = require('better-sqlite3')
 const delta = require('./delta')
 const EventEmitter = require('events')
 const exiftool = require('../exiftool/parallel')
+const { getDate } = require('../../model/metadata')
 const fs = require('fs-extra')
 const globber = require('./glob')
 const moment = require('moment')
@@ -15,7 +16,17 @@ class Index {
     // create the database if it doesn't exist
     fs.mkdirpSync(path.dirname(indexPath))
     this.db = new Database(indexPath, {})
-    this.db.exec('CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, timestamp INTEGER, metadata BLOB, processed_path_small TEXT, processed_path_large TEXT, processed_path_original TEXT)')
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS files (
+        path TEXT PRIMARY KEY, 
+        timestamp INTEGER, 
+        date INTEGER,
+        metadata BLOB, 
+        processed_path_small TEXT, 
+        processed_path_large TEXT, 
+        processed_path_original TEXT
+      )
+    `)
   }
 
   /*
@@ -27,7 +38,7 @@ class Index {
 
     // prepared database statements
     const selectStatement = this.db.prepare('SELECT path, timestamp FROM files')
-    const insertStatement = this.db.prepare('INSERT OR REPLACE INTO files (path, timestamp, metadata) VALUES (?, ?, ?)')
+    const insertStatement = this.db.prepare('INSERT OR REPLACE INTO files (path, timestamp, date, metadata) VALUES (?, ?, ?, ?)')
     const deleteStatement = this.db.prepare('DELETE FROM files WHERE path = ?')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
@@ -83,13 +94,19 @@ class Index {
       const stream = exiftool.parse(mediaFolder, toProcess, options.concurrency)
       stream.on('data', entry => {
         const timestamp = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
-        insertStatement.run(entry.SourceFile, timestamp, JSON.stringify(entry))
+        insertStatement.run(entry.SourceFile, getDate(entry), timestamp, JSON.stringify(entry))
         ++processed
         emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
       }).on('end', finished)
     })
 
     return emitter
+  }
+
+  updateMetadataFields() {
+    this.db.prepare('SELECT * FROM files').all().forEach(file => {
+      this.db.prepare(`UPDATE files SET date = ? WHERE path = ?`).run(getDate(JSON.parse(file.metadata)), file.path);
+    });
   }
 
   /*

@@ -142,4 +142,7 @@ function dimensions (exif) {
   }
 }
 
-module.exports = Metadata
+module.exports = {
+  getDate,
+  Metadata,
+}
