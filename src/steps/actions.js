@@ -5,7 +5,7 @@ const sharp = require('sharp');
 
 exports.createMap = function (opts) {
   const thumbSize = opts.thumbSize || 120
-  const smallSize = opts.smallSize || 480
+  const smallSize = opts.smallSize || 220
   const largeSize = opts.largeSize || 1440
   const defaultOptions = {
     quality: opts.photoQuality || 90,
@@ -19,17 +19,17 @@ exports.createMap = function (opts) {
   const thumbnail = Object.assign({}, defaultOptions, {
     height: thumbSize,
     width: thumbSize,
-    seek: seek
+    seek,
   })
   const small = Object.assign({}, defaultOptions, {
     height: smallSize,
-    seek: seek
+    seek,
   })
   const large = Object.assign({}, defaultOptions, {
     height: largeSize,
     watermark: watermark,
     animated: true,
-    seek: seek
+    seek,
   })
   const videoOpts = {
     extraFfmpegArgs: ['-pix_fmt', 'yuv420p'],
