@@ -30,6 +30,7 @@ function create (files, opts, problems) {
     const srcPath = f.isWebSupported() ? path.join(opts.input, f.path) : path.join(opts.output, f.output.conversion.path);
     helper(f, f.output.small, srcPath, 'small', tasks, actionMap, problems, sourceFiles, opts);
     helper(f, f.output.large, srcPath, 'large', tasks, actionMap, problems, sourceFiles, opts);
+    helper(f, f.output.thumbnail, srcPath, 'thumbnail', tasks, actionMap, problems, sourceFiles, opts);
   });
   
   const list = Object.keys(tasks).map(dest => tasks[dest])

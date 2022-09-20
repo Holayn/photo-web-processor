@@ -49,11 +49,10 @@ exports.createMap = function (opts) {
         }, done);
       }
     },
-    'photo:thumbnail': (task, done) => downsize.image(task.src, task.dest, thumbnail, done),
-    'photo:small': ({ src, dest, file }, done) => {
-      if (!file.isJpg()) {
+    'photo:thumbnail': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
         sharp(src)
-        .resize(null, small.height)
+        .resize(thumbnail.width, thumbnail.height)
         .jpeg({
           quality: 90,
         })
@@ -61,11 +60,29 @@ exports.createMap = function (opts) {
         .then(() => done())
         .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
       } else {
-        sharp(src)
-        .resize(null, small.height)
-        .toFile(dest)
-        .then(() => done())
-        .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
+        return downsize.image(src, dest, thumbnail, done);
+      }
+    },
+    'photo:small': ({ src, dest, file }, done) => {
+      if (file.isWebSupported()) {
+        if (!file.isJpg()) {
+          sharp(src)
+          .resize(null, small.height)
+          .jpeg({
+            quality: 90,
+          })
+          .toFile(dest)
+          .then(() => done())
+          .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
+        } else {
+          sharp(src)
+          .resize(null, small.height)
+          .toFile(dest)
+          .then(() => done())
+          .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
+        }
+      } else {
+        return downsize.image(src, dest, small, done);
       }
     },
     'photo:large': ({ src, dest, file }, done) => {

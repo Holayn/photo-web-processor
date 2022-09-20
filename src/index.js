@@ -25,7 +25,7 @@ exports.build = function (opts, done) {
         ctx.files.forEach(f => {
           if (f.isAppleLivePhoto()) {
             // Clear out any paths of previous live photos that may have set due to being processed.
-            ctx.index.db.prepare('UPDATE files SET processed_path_small = null, processed_path_large = null, processed_path_original = null WHERE path = ?').run(f.path);
+            ctx.index.db.prepare('UPDATE files SET processed_path_small = null, processed_path_large = null, processed_path_original = null, processed_path_thumb = null WHERE path = ?').run(f.path);
           } else {
             files.push(f);
           }

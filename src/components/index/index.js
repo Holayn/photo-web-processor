@@ -24,7 +24,8 @@ class Index {
         metadata BLOB, 
         processed_path_small TEXT, 
         processed_path_large TEXT, 
-        processed_path_original TEXT
+        processed_path_original TEXT,
+        processed_path_thumb TEXT
       )
     `)
   }
@@ -128,6 +129,8 @@ class Index {
       this.db.prepare('UPDATE files SET processed_path_large = ? WHERE path = ?').run(convertPath(file.output.large.path), file.path);
     } else if (outputType === 'original') {
       this.db.prepare('UPDATE files SET processed_path_original = ? WHERE path = ?').run(convertPath(file.output.original.path), file.path);
+    } else if (outputType === 'thumbnail') {
+      this.db.prepare('UPDATE files SET processed_path_thumb = ? WHERE path = ?').run(convertPath(file.output.thumbnail.path), file.path);
     }
   }
 }

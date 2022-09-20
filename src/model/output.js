@@ -14,6 +14,7 @@ exports.paths = function (filepath, mediaType, opts) {
 
 function image (filepath, opts) {
   return {
+    thumbnail: relationship(filepath, 'photo:thumbnail', opts),
     small: relationship(filepath, 'photo:small', opts),
     large: relationship(filepath, shortRel('image', opts.photoPreview), opts),
     original: relationship(filepath, 'fs:symlink', opts),
@@ -23,6 +24,7 @@ function image (filepath, opts) {
 
 function video (filepath, opts) {
   return {
+    thumbnail: relationship(filepath, 'video:thumbnail', opts),
     small: relationship(filepath, 'video:small', opts),
     large: relationship(filepath, 'video:large', opts),
     original: relationship(filepath, 'fs:symlink', opts),
