@@ -22,6 +22,7 @@ class Index {
         timestamp INTEGER, 
         date INTEGER,
         metadata BLOB, 
+        processed INTEGER,
         processed_path_small TEXT, 
         processed_path_large TEXT, 
         processed_path_original TEXT,
