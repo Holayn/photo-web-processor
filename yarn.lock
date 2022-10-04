@@ -823,6 +823,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cron@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "cron@npm:2.1.0"
+  dependencies:
+    luxon: ^1.23.x
+  checksum: 9395875c091f56db7964491c249cb143d2e4ba77560d7132da783943c1b0537ef1814eb8f552c81eda5a2aa153216dd3f5b7ff63e372a68a063fcfafe8231f91
+  languageName: node
+  linkType: hard
+
 "cross-spawn@npm:^4.0.0":
   version: 4.0.2
   resolution: "cross-spawn@npm:4.0.2"
@@ -1019,6 +1028,13 @@ __metadata:
   dependencies:
     is-obj: ^1.0.0
   checksum: 5f4f19aa440bc548670d87f2adcbd105fa6842cd1fba3165a8a2b1380568ae82862acf8ebafcc6093fa062505d7d08d7155c7ba9a88da212f7348e95ef2bdce6
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.0.3":
+  version: 16.0.3
+  resolution: "dotenv@npm:16.0.3"
+  checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
   languageName: node
   linkType: hard
 
@@ -2722,6 +2738,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"luxon@npm:^1.23.x":
+  version: 1.28.0
+  resolution: "luxon@npm:1.28.0"
+  checksum: 5250cb9f138b6048eeb0b3a9044a4ac994d0058f680c72a0da4b6aeaec8612460385639cba2b1052ef6d5564879e9ed144d686f26d9d97b38ab920d82e18281c
+  languageName: node
+  linkType: hard
+
 "macos-release@npm:^2.2.0":
   version: 2.5.0
   resolution: "macos-release@npm:2.5.0"
@@ -3355,7 +3378,9 @@ __metadata:
     boxen: ^5.0.1
     chalk: ^4.1.0
     command-exists: ^1.2.9
+    cron: ^2.1.0
     debug: ^4.3.1
+    dotenv: ^16.0.3
     event-stream: ^4.0.1
     fs-extra: ^9.1.0
     fs-readdir-recursive: ^1.0.0

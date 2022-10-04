@@ -9,3 +9,4 @@ thumbsup.db
 !.yarn/versions
 .pnp.*
 .configs
+.env
