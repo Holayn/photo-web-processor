@@ -96,7 +96,7 @@ class Index {
       const stream = exiftool.parse(mediaFolder, toProcess, options.concurrency)
       stream.on('data', entry => {
         const timestamp = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
-        insertStatement.run(entry.SourceFile, getDate(entry), timestamp, JSON.stringify(entry))
+        insertStatement.run(entry.SourceFile, timestamp, getDate(entry), JSON.stringify(entry))
         ++processed
         emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
       }).on('end', finished)
