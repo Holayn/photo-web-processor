@@ -7,19 +7,12 @@ This is based on parsing "provider data" such as Exiftool
 
 const _ = require('lodash')
 const moment = require('moment')
-const path = require('path')
 
 // mime type for videos
 const MIME_VIDEO_REGEX = /^video\/.*$/
 
 // standard EXIF date format, which is different from ISO8601
 const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
-
-// infer dates from files with a date-looking filename
-const FILENAME_DATE_REGEX = /\d{4}[_\-.\s]?(\d{2}[_\-.\s]?){5}\..{3,4}/
-
-// moment ignores non-numeric characters when parsing
-const FILENAME_DATE_FORMAT = 'YYYYMMDD HHmmss'
 
 class Metadata {
   constructor (exiftool, opts) {
@@ -49,9 +42,6 @@ function getDate (exif) {
   // first, check if there's a valid date in the metadata
   const metadate = getMetaDate(exif)
   if (metadate) return metadate.valueOf()
-  // next, check if the filename looks like a date
-  const namedate = getFilenameDate(exif)
-  if (namedate) return namedate.valueOf()
   // otherwise, fallback to the last modified date
   return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
 }
@@ -61,20 +51,10 @@ function getMetaDate (exif) {
     tagValue(exif, 'H264', 'DateTimeOriginal') ||
     tagValue(exif, 'QuickTime', 'ContentCreateDate') ||
     tagValue(exif, 'QuickTime', 'CreationDate') ||
-    tagValue(exif, 'QuickTime', 'CreateDate') ||
     tagValue(exif, 'XMP', 'CreateDate') ||
     tagValue(exif, 'XMP', 'DateCreated')
   if (date) {
     const parsed = moment(date, EXIF_DATE_FORMAT)
-    if (parsed.isValid()) return parsed
-  }
-  return null
-}
-
-function getFilenameDate (exif) {
-  const filename = path.basename(exif.SourceFile)
-  if (FILENAME_DATE_REGEX.test(filename)) {
-    const parsed = moment(filename, FILENAME_DATE_FORMAT)
     if (parsed.isValid()) return parsed
   }
   return null
