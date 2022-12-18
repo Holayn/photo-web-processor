@@ -28,7 +28,7 @@ class Metadata {
     this.width = size.width
     this.height = size.height
     this.exif = opts ? (opts.embedExif ? exiftool.EXIF : undefined) : undefined
-    this.appleLivePhoto = !!tagValue(exiftool, 'QuickTime', 'LivePhotoAuto');
+    this.appleLivePhoto = !!tagValue(exiftool, 'QuickTime', 'LivePhotoAuto') || !!tagValue(exiftool, 'QuickTime', 'Live-photoAuto');
     // metadata could also include fields like
     //  - lat = 51.5
     //  - long = 0.12
