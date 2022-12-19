@@ -107,7 +107,11 @@ class Index {
 
   updateMetadataFields() {
     this.db.prepare('SELECT * FROM files').all().forEach(file => {
-      this.db.prepare(`UPDATE files SET date = ? WHERE path = ?`).run(getDate(JSON.parse(file.metadata)), file.path);
+      const newDate = getDate(JSON.parse(file.metadata));
+      if (file.date !== newDate) {
+        console.log(`Updating date of ${file.path}`);
+      }
+      this.db.prepare(`UPDATE files SET date = ? WHERE path = ?`).run(newDate, file.path);
     });
   }
 

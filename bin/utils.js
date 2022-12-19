@@ -73,7 +73,7 @@ yargs(args)
   .command('update-metadata-fields', `Update fields that source from the metadata field.`, {
     source: {
       demand: true,
-      description: 'System filepath to the images/videos',
+      description: 'System filepath to the index database.',
       type: 'string',
     },
   }, (options) => {

@@ -12,7 +12,8 @@ const moment = require('moment')
 const MIME_VIDEO_REGEX = /^video\/.*$/
 
 // standard EXIF date format, which is different from ISO8601
-const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
+// Ignore any time offsets - use the local time of the photo taken.
+const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ss'
 
 class Metadata {
   constructor (exiftool, opts) {
