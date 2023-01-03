@@ -8,7 +8,19 @@ const { run } = require('../src/main');
 
 let processing = false;
 
-new CronJob('0 */1 * * *', () => {
+const args = process.argv.slice(2);
+
+const schedule = '0 */1 * * *';
+new CronJob(schedule, () => {
+  processJob();
+}).start();
+console.log(`Processing job started: ${schedule}.`);
+
+if (args.length && args[0].includes('--run')) {
+  processJob();
+}
+
+function processJob() {
   if (!processing) {
     console.log('Job: Looking for photos to process.');
     processing = true;
@@ -35,6 +47,4 @@ new CronJob('0 */1 * * *', () => {
       processing = false;
     });
   }
-}).start();
-
-console.log('Jobs started.');
+}
