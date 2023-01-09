@@ -31,23 +31,29 @@ function run(args) {
     moment.locale(opts.locale)
 
     // Build the gallery!
-    index.build(opts, (err, result) => {
-      console.log('')
-      if (err) {
-        handleError(err)
-        reject();
-      } else {
-        // Print any problems
-        result.problems.print()
-        // And then a summary of the gallery
-        const stats = {
-          photos: 'TODO',
-          videos: 'TODO',
+    try {
+      index.build(opts, (err, result) => {
+        console.log('')
+        if (err) {
+          handleError(err)
+          reject();
+        } else {
+          // Print any problems
+          result.problems.print()
+          // And then a summary of the gallery
+          const stats = {
+            photos: 'TODO',
+            videos: 'TODO',
+            fixedFiles: result.fixedFiles,
+          }
+          console.log(messages.SUCCESS(stats) + '\n')
+          resolve();
         }
-        console.log(messages.SUCCESS(stats) + '\n')
-        resolve();
-      }
-    });
+      });
+    } catch (e) {
+      handleError(err)
+      reject();
+    }
   });
 
   // Print an error report and exit

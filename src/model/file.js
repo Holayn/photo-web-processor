@@ -27,6 +27,7 @@ class File {
     this.filename = path.basename(dbEntry.SourceFile)
     this.date = fileDate(dbEntry)
     this.type = mediaType(dbEntry)
+    this.origType = dbEntry.File.MIMEType;
     this.extension = path.extname(this.path);
     this.isVideo = (this.type === 'video')
     this.output = output.paths(this.path, this.type, opts || {})

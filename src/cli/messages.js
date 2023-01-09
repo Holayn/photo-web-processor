@@ -24,7 +24,13 @@ Please make sure they are installed and available in the system path.\n
 ${list.join('\n')}
 `
 
-exports.SUCCESS = (stats) => box(`Images/videos processed successfully!`)
+exports.SUCCESS = (stats) => box(`
+Images/videos processed successfully!
+${stats.fixedFiles?.length ? `
+Fixed the following files: 
+${stats.fixedFiles.join(', ')}
+` : ''}
+`)
 
 exports.PROBLEMS = (count) => chalk.yellow(`
  Warning: there was an issue with ${count} file${count > 1 ? 's' : ''}.

@@ -1,4 +1,7 @@
 const Listr = require('listr')
+const fs = require('fs-extra');
+const path = require('path');
+
 const steps = require('./steps/index')
 const Problems = require('./problems')
 
@@ -31,6 +34,23 @@ exports.build = function (opts, done) {
           }
         });
         ctx.files = files;
+      },
+    },
+    {
+      title: 'Fixing photos with bad extensions',
+      task: (ctx) => {
+        ctx.fixedFiles = [];
+        ctx.files.forEach(f => {
+          if ((f.extension.includes('jpg') || f.extension.includes('jpeg')) && f.origType.includes('heic')) {
+            const origFileDir = path.dirname(f.path);
+            const origFileName = path.basename(f.filename, f.extension);
+            const newFile = `${origFileDir}/${origFileName}.HEIC`;
+            fs.renameSync(path.join(opts.input, f.path), path.join(opts.input, newFile));
+            f.path = newFile;
+            f.extension = '.HEIC';
+            ctx.fixedFiles.push(f.path);
+          }
+        });
       },
     },
     {
@@ -97,7 +117,8 @@ exports.build = function (opts, done) {
 
   tasks.run().then(ctx => {
     done(null, {
-      problems: ctx.problems
+      problems: ctx.problems,
+      fixedFiles: ctx.fixedFiles,
     })
   }).catch(err => {
     done(err)
