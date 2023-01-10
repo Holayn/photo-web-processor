@@ -34,7 +34,14 @@ function processJob() {
           return new Observable(observer => {
             run(['--config', path.resolve(cp)]).then(() => {
               observer.complete();
-            }).catch(() => { console.error('Something went wrong when processing photos.'); });
+            }).catch((e) => { 
+              if (e) {
+                console.error(e);
+              }
+              else {
+                console.error('Something went wrong when processing photos.'); 
+              }
+            });
           });
         }
       }

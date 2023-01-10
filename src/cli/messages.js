@@ -26,6 +26,9 @@ ${list.join('\n')}
 
 exports.SUCCESS = (stats) => box(`
 Images/videos processed successfully!
+Start: ${stats.timings.startTime}
+End: ${new Date()}
+Total MS: ${stats.timings.end - stats.timings.start}ms
 ${stats.fixedFiles?.length ? `
 Fixed the following files: 
 ${stats.fixedFiles.join(', ')}

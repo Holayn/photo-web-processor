@@ -3,6 +3,7 @@ const moment = require('moment')
 const dependencies = require('./cli/dependencies')
 const messages = require('./cli/messages')
 const options = require('./cli/options')
+const { performance } = require('node:perf_hooks');
 
 function run(args) {
   const opts = options.get(args)
@@ -32,6 +33,8 @@ function run(args) {
 
     // Build the gallery!
     try {
+      const start = performance.now();
+      const startTime = new Date();
       index.build(opts, (err, result) => {
         console.log('')
         if (err) {
@@ -45,12 +48,17 @@ function run(args) {
             photos: 'TODO',
             videos: 'TODO',
             fixedFiles: result.fixedFiles,
+            timings: {
+              startTime,
+              start,
+              end: performance.now(),
+            },
           }
           console.log(messages.SUCCESS(stats) + '\n')
           resolve();
         }
       });
-    } catch (e) {
+    } catch (err) {
       handleError(err)
       reject();
     }
