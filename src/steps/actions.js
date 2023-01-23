@@ -53,6 +53,7 @@ exports.createMap = function (opts) {
       if (file.isWebSupported()) {
         sharp(src)
         .resize(thumbnail.width, thumbnail.height)
+        .rotate()
         .jpeg({
           quality: 90,
         })
@@ -68,6 +69,7 @@ exports.createMap = function (opts) {
         if (!file.isJpg()) {
           sharp(src)
           .resize(null, small.height)
+          .rotate()
           .jpeg({
             quality: 90,
           })
@@ -77,6 +79,7 @@ exports.createMap = function (opts) {
         } else {
           sharp(src)
           .resize(null, small.height)
+          .rotate()
           .toFile(dest)
           .then(() => done())
           .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
@@ -95,6 +98,7 @@ exports.createMap = function (opts) {
         if (!file.isJpg()) {
           sharp(src)
           .resize(width, height)
+          .rotate()
           .jpeg({
             quality: 90,
           })
@@ -104,6 +108,7 @@ exports.createMap = function (opts) {
         } else {
           sharp(src)
           .resize(width, height)
+          .rotate()
           .toFile(dest)
           .then(() => done())
           .catch( err => { warn(`${err} - image may be corrupted.`); done(); });
