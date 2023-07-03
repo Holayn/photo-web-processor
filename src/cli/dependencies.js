@@ -26,26 +26,12 @@ const BINARIES = [
     msg: 'You will not be able to process videos.'
   },
   {
-    // optional to process animated GIFs
-    mandatory: false,
-    cmd: 'gifsicle',
-    url: 'http://www.lcdf.org/gifsicle',
-    msg: 'You will not be able to process animated GIFs.'
-  },
-  {
     // optional to process RAW photos
     mandatory: false,
     cmd: 'dcraw',
     url: 'https://www.cybercom.net/~dcoffin/dcraw/',
     msg: 'You will not be able to process RAW photos.'
   },
-  {
-    // optional to create album ZIP files
-    mandatory: false,
-    cmd: 'zip',
-    url: 'https://linux.die.net/man/1/zip',
-    msg: 'You will not be able to create ZIP files.'
-  }
 ]
 
 exports.checkRequired = () => {
