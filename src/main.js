@@ -68,9 +68,10 @@ function run(args) {
   // Note: remove "err.context" (entire data model) which can make the output hard to read
   function handleError (err) {
     // delete err.context
-    require('debug')('thumbsup:error')(err)
-    console.error('\nUnexpected error', err.message)
-    console.error(`\n${messages.SORRY(opts.logFile)}\n`)
+    require('debug')('thumbsup:error')(err);
+    console.error('\nUnexpected error', err.message);
+    console.error(err.stack);
+    console.error(`\n${messages.SORRY(opts.logFile)}\n`);
   }
 }
 
