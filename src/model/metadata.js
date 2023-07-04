@@ -8,34 +8,15 @@ This is based on parsing "provider data" such as Exiftool
 const _ = require('lodash')
 const moment = require('moment')
 
-// mime type for videos
-const MIME_VIDEO_REGEX = /^video\/.*$/
-
-// standard EXIF date format, which is different from ISO8601
-// Ignore any time offsets - use the local time of the photo taken.
-const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ss'
+const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
 
 class Metadata {
-  constructor (exiftool, opts) {
-    // standardise metadata
-    this.date = getDate(exiftool)
-    this.caption = caption(exiftool)
-    this.keywords = keywords(exiftool)
-    this.people = people(exiftool)
-    this.video = video(exiftool)
-    this.animated = animated(exiftool)
-    this.rating = rating(exiftool)
-    const size = dimensions(exiftool)
+  constructor (exif) {
+    this.date = getDate(exif)
+    const size = dimensions(exif)
     this.width = size.width
     this.height = size.height
-    this.exif = opts ? (opts.embedExif ? exiftool.EXIF : undefined) : undefined
-    this.appleLivePhoto = !!tagValue(exiftool, 'QuickTime', 'LivePhotoAuto') || !!tagValue(exiftool, 'QuickTime', 'Live-photoAuto');
-    // metadata could also include fields like
-    //  - lat = 51.5
-    //  - long = 0.12
-    //  - country = "England"
-    //  - city = "London"
-    //  - aperture = 1.8
+    this.appleLivePhoto = exif.QuickTime?.LivePhotoAuto || exif.QuickTime?.['Live-photoAuto'];
   }
 }
 
@@ -48,64 +29,18 @@ function getDate (exif) {
 }
 
 function getMetaDate (exif) {
-  const date = tagValue(exif, 'EXIF', 'DateTimeOriginal') ||
-    tagValue(exif, 'H264', 'DateTimeOriginal') ||
-    tagValue(exif, 'QuickTime', 'ContentCreateDate') ||
-    tagValue(exif, 'QuickTime', 'CreationDate') ||
-    tagValue(exif, 'XMP', 'CreateDate') ||
-    tagValue(exif, 'XMP', 'DateCreated')
+  const date = exif.EXIF?.DateTimeOriginal ||
+    exif.H264?.DateTimeOriginal ||
+    exif.QuickTime?.ContentCreateDate ||
+    exif.QuickTime?.CreationDate ||
+    exif.XMP?.CreateDate ||
+    exif.XMP?.DateCreated;
+
   if (date) {
     const parsed = moment(date, EXIF_DATE_FORMAT)
     if (parsed.isValid()) return parsed
   }
   return null
-}
-
-function caption (exif) {
-  return tagValue(exif, 'EXIF', 'ImageDescription') ||
-    tagValue(exif, 'IPTC', 'Caption-Abstract') ||
-    tagValue(exif, 'IPTC', 'Headline') ||
-    tagValue(exif, 'XMP', 'Description') ||
-    tagValue(exif, 'XMP', 'Title') ||
-    tagValue(exif, 'XMP', 'Label') ||
-    tagValue(exif, 'QuickTime', 'Title')
-}
-
-function keywords (exif) {
-  const sources = [
-    tagValue(exif, 'IPTC', 'Keywords'),
-    tagValue(exif, 'XMP', 'Subject')
-  ]
-  return _.chain(sources).flatMap(makeArray).uniq().value()
-}
-
-function people (exif) {
-  return tagValue(exif, 'XMP', 'PersonInImage') || []
-}
-
-function video (exif) {
-  return MIME_VIDEO_REGEX.test(exif.File['MIMEType'])
-}
-
-function animated (exif) {
-  if (exif.File['MIMEType'] !== 'image/gif') return false
-  if (exif.GIF && exif.GIF.FrameCount > 0) return true
-  return false
-}
-
-function rating (exif) {
-  if (!exif.XMP) return 0
-  return exif.XMP['Rating'] || 0
-}
-
-function tagValue (exif, type, name) {
-  if (!exif[type]) return null
-  return exif[type][name]
-}
-
-function makeArray (value) {
-  if (!value) return []
-  return Array.isArray(value) ? value : value.split(',')
 }
 
 function dimensions (exif) {

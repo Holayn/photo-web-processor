@@ -21,13 +21,13 @@ const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
 var index = 0
 
 class File {
-  constructor (dbEntry, meta, opts) {
+  constructor (exif, meta, opts) {
     this.id = ++index
-    this.path = dbEntry.SourceFile
-    this.filename = path.basename(dbEntry.SourceFile)
-    this.date = fileDate(dbEntry)
-    this.type = mediaType(dbEntry)
-    this.origType = dbEntry.File.MIMEType;
+    this.path = exif.SourceFile
+    this.filename = path.basename(exif.SourceFile)
+    this.date = fileDate(exif)
+    this.type = mediaType(exif)
+    this.origType = exif.File.MIMEType;
     this.extension = path.extname(this.path);
     this.isVideo = (this.type === 'video')
     this.output = output.paths(this.path, this.type, opts || {})
@@ -60,12 +60,12 @@ class File {
   }
 }
 
-function fileDate (dbEntry) {
-  return moment(dbEntry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
+function fileDate (exif) {
+  return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
 }
 
-function mediaType (dbEntry) {
-  const match = MIME_REGEX.exec(dbEntry.File.MIMEType)
+function mediaType (exif) {
+  const match = MIME_REGEX.exec(exif.File.MIMEType)
   if (match && match[1] === 'image') return 'image'
   if (match && match[1] === 'video') return 'video'
   return 'unknown'
