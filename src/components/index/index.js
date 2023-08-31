@@ -115,16 +115,6 @@ class Index {
     });
   }
 
-  adjustDate(offset, pattern) {
-    this.db.prepare('SELECT * FROM files').all().forEach(file => {
-      if (file.path.includes(pattern)) {
-        const newDate = getDate(JSON.parse(file.metadata)) + (parseInt(offset));
-        console.log(`Adjusting date of ${file.path}`);
-        this.db.prepare(`UPDATE files SET date = ? WHERE path = ?`).run(newDate, file.path);
-      }
-    });
-  }
-
   /*
     Do a full vacuum to optimise the database
     which can be needed if files are often deleted/modified
