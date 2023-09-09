@@ -10,3 +10,4 @@ thumbsup.db
 .pnp.*
 .configs
 .env
+test/output
