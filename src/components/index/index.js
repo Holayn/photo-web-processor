@@ -18,10 +18,12 @@ class Index {
     this.db = new Database(indexPath, {})
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS files (
-        path TEXT PRIMARY KEY, 
-        timestamp INTEGER, 
-        date INTEGER,
-        metadata BLOB, 
+        id INTEGER PRIMARY KEY,
+        path TEXT UNIQUE NOT NULL,
+        file_name TEXT NOT NULL,
+        file_date INTEGER NOT NULL, 
+        date INTEGER NOT NULL,
+        metadata BLOB NOT NULL, 
         processed INTEGER,
         processed_path_small TEXT, 
         processed_path_large TEXT, 
@@ -39,24 +41,31 @@ class Index {
     const emitter = new EventEmitter()
 
     // prepared database statements
-    const selectStatement = this.db.prepare('SELECT path, timestamp FROM files')
-    const insertStatement = this.db.prepare('INSERT OR REPLACE INTO files (path, timestamp, date, metadata) VALUES (?, ?, ?, ?)')
+    const selectStatement = this.db.prepare('SELECT path, file_date FROM files')
+    const insertStatement = this.db.prepare('INSERT INTO files (path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?)')
+    const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
     const deleteStatement = this.db.prepare('DELETE FROM files WHERE path = ?')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
+    const selectFile = this.db.prepare('SELECT * FROM files WHERE file_name = ? AND file_date = ?');
 
     // create hashmap of all files in the database
     const databaseMap = {}
     for (var row of selectStatement.iterate()) {
-      databaseMap[row.path] = row.timestamp
+      databaseMap[row.path] = row.file_date
     }
 
-    function finished () {
+    function finished (filesToDelete) {
+      // remove deleted files from the DB
+      filesToDelete.forEach(path => {
+        deleteStatement.run(path)
+      });
+
       // emit every file in the index
       for (var row of selectMetadata.iterate()) {
         emitter.emit('file', {
           path: row.path,
-          timestamp: new Date(row.timestamp),
+          timestamp: new Date(row.file_date),
           metadata: JSON.parse(row.metadata)
         })
       }
@@ -79,27 +88,30 @@ class Index {
         total: Object.keys(diskMap).length
       })
 
-      // remove deleted files from the DB
-      _.each(deltaFiles.deleted, path => {
-        deleteStatement.run(path)
-      })
-
       // check if any files need parsing
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
-      if (toProcess.length === 0) {
-        return finished()
+      if (toProcess.length === 0) {;
+        return finished(deltaFiles.deleted)
       }
 
       // call <exiftool> on added and modified files
       // and write each entry to the database
       const stream = exiftool.parse(mediaFolder, toProcess, options.concurrency)
       stream.on('data', entry => {
-        const timestamp = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
-        insertStatement.run(entry.SourceFile, timestamp, getDate(entry), JSON.stringify(entry))
+        const fileDate = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf();
+        const fileName = path.basename(entry.SourceFile);
+        const file = selectFile.get(fileName, fileDate);
+        if (file && file.id) {
+          replaceStatement.run(file.id, entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+        } else {
+          insertStatement.run(entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+        }
         ++processed
         emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
-      }).on('end', finished)
+      }).on('end', () => {
+        finished(deltaFiles.deleted);
+      });
     })
 
     return emitter
