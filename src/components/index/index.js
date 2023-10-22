@@ -44,7 +44,6 @@ class Index {
     const selectStatement = this.db.prepare('SELECT path, file_date FROM files')
     const insertStatement = this.db.prepare('INSERT INTO files (path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?)')
     const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
-    const deleteStatement = this.db.prepare('DELETE FROM files WHERE path = ?')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
     const selectFile = this.db.prepare('SELECT * FROM files WHERE file_name = ? AND file_date = ?');
@@ -55,12 +54,7 @@ class Index {
       databaseMap[row.path] = row.file_date
     }
 
-    function finished (filesToDelete) {
-      // remove deleted files from the DB
-      filesToDelete.forEach(path => {
-        deleteStatement.run(path)
-      });
-
+    function finished () {
       // emit every file in the index
       for (var row of selectMetadata.iterate()) {
         emitter.emit('file', {
@@ -92,7 +86,7 @@ class Index {
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
       if (toProcess.length === 0) {;
-        return finished(deltaFiles.deleted)
+        return finished()
       }
 
       // call <exiftool> on added and modified files
@@ -110,7 +104,7 @@ class Index {
         ++processed
         emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
       }).on('end', () => {
-        finished(deltaFiles.deleted);
+        finished();
       });
     })
 
