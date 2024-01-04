@@ -46,7 +46,7 @@ class Index {
     const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
-    const selectFile = this.db.prepare('SELECT * FROM files WHERE file_name = ? AND file_date = ?');
+    const selectFile = this.db.prepare('SELECT * FROM files WHERE file_name = ?');
 
     // create hashmap of all files in the database
     const databaseMap = {}
@@ -85,7 +85,7 @@ class Index {
       // check if any files need parsing
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
-      if (toProcess.length === 0) {;
+      if (toProcess.length === 0) {
         return finished()
       }
 
@@ -95,7 +95,7 @@ class Index {
       stream.on('data', entry => {
         const fileDate = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf();
         const fileName = path.basename(entry.SourceFile);
-        const file = selectFile.get(fileName, fileDate);
+        const file = selectFile.get(fileName);
         if (file && file.id) {
           replaceStatement.run(file.id, entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
         } else {
