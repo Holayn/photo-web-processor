@@ -55,9 +55,12 @@ class Index {
       databaseMap[row.path] = row.file_date
     }
 
-    function finished () {
+    function finished (deltaFiles) {
+      const deleted = new Set(deltaFiles.deleted);
       // emit every file in the index
       for (var row of selectMetadata.iterate()) {
+        if (deleted.has(row.path)) { continue; }
+
         emitter.emit('file', {
           path: row.path,
           timestamp: new Date(row.file_date),
@@ -87,7 +90,7 @@ class Index {
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
       if (toProcess.length === 0) {
-        return finished()
+        return finished(deltaFiles)
       }
 
       // call <exiftool> on added and modified files
@@ -106,7 +109,7 @@ class Index {
         ++processed
         emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
       }).on('end', () => {
-        finished();
+        finished(deltaFiles);
       });
     })
 
