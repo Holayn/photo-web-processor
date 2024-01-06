@@ -46,7 +46,8 @@ class Index {
     const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
-    const selectFile = this.db.prepare('SELECT * FROM files WHERE file_name = ?');
+    const selectByFileName = this.db.prepare('SELECT * FROM files WHERE file_name = ?');
+    const selectByPath = this.db.prepare('SELECT * FROM files WHERE path = ?');
 
     // create hashmap of all files in the database
     const databaseMap = {}
@@ -95,7 +96,8 @@ class Index {
       stream.on('data', entry => {
         const fileDate = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf();
         const fileName = path.basename(entry.SourceFile);
-        const file = selectFile.get(fileName);
+        // If the file path doesn't exist, check to see if the file exists elsewhere by checking if there is a matching file name.
+        const file = selectByPath.get(entry.SourceFile) || selectByFileName.get(fileName);
         if (file && file.id) {
           replaceStatement.run(file.id, entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
         } else {
