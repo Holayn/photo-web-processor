@@ -13,13 +13,12 @@ const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
 
 class Index {
   constructor (indexPath) {
-    // create the database if it doesn't exist
     fs.mkdirpSync(path.dirname(indexPath))
     this.db = new Database(indexPath, {})
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS files (
-        id INTEGER PRIMARY KEY,
-        path TEXT UNIQUE NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL,
         file_name TEXT NOT NULL,
         file_date INTEGER NOT NULL, 
         date INTEGER NOT NULL,
@@ -31,6 +30,8 @@ class Index {
         processed_path_thumb TEXT
       )
     `)
+
+    this.deletedDb = new DeletedIndex(indexPath);
   }
 
   /*
@@ -43,11 +44,15 @@ class Index {
     // prepared database statements
     const selectStatement = this.db.prepare('SELECT path, file_date FROM files')
     const insertStatement = this.db.prepare('INSERT INTO files (path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?)')
+    const insertIdStatement = this.db.prepare('INSERT INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
     const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
+    const deleteStatement = this.db.prepare('DELETE FROM files WHERE id = ?');
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
-    const selectByFileName = this.db.prepare('SELECT * FROM files WHERE file_name = ?');
+    const selectByFileNameFileDate = this.db.prepare('SELECT * FROM files WHERE file_name = ? AND file_date = ?');
     const selectByPath = this.db.prepare('SELECT * FROM files WHERE path = ?');
+
+    const findFileCopies = (fileName, fileDate) => selectByFileNameFileDate.all(fileName, fileDate);
 
     // create hashmap of all files in the database
     const databaseMap = {}
@@ -55,11 +60,17 @@ class Index {
       databaseMap[row.path] = row.file_date
     }
 
-    function finished (deltaFiles) {
+    function finished (deltaFiles, deletedIndex) {
       const deleted = new Set(deltaFiles.deleted);
+
+      const entries = selectMetadata.all();
       // emit every file in the index
-      for (var row of selectMetadata.iterate()) {
-        if (deleted.has(row.path)) { continue; }
+      for (const row of entries) {
+        if (deleted.has(row.path)) { 
+          deletedIndex.insert(row);
+          deleteStatement.run(row.id);
+          continue; 
+        }
 
         emitter.emit('file', {
           path: row.path,
@@ -90,7 +101,7 @@ class Index {
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
       if (toProcess.length === 0) {
-        return finished(deltaFiles)
+        return finished(deltaFiles, this.deletedDb)
       }
 
       // call <exiftool> on added and modified files
@@ -99,17 +110,56 @@ class Index {
       stream.on('data', entry => {
         const fileDate = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf();
         const fileName = path.basename(entry.SourceFile);
-        // If the file path doesn't exist, check to see if the file exists elsewhere by checking if there is a matching file name.
-        const file = selectByPath.get(entry.SourceFile) || selectByFileName.get(fileName);
-        if (file && file.id) {
-          replaceStatement.run(file.id, entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+        const filePath = entry.SourceFile;
+
+        const originalPathFile = selectByPath.get(filePath);
+
+        if (originalPathFile) {
+          replaceStatement.run(originalPathFile.id, filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry))
         } else {
-          insertStatement.run(entry.SourceFile, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+          const insert = () => {
+            // If matching files used to exist in the index, add them back (with the same IDs they had before).
+            const deletedFiles = this.deletedDb.findFileCopies(fileName, fileDate);
+            if (deletedFiles.length) {
+              deletedFiles.forEach(deletedFile => {
+                insertIdStatement.run(deletedFile.id, filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry));
+                this.deletedDb.remove(deletedFile.id);
+              });
+            } else {
+              insertStatement.run(filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+            }
+          }
+
+          // The file doesn't exist yet. Look for any existing entries that indicate that the entry is in fact a copy of the new file.
+          // Instead of inserting a new record for the file, check to see if any existing entry points to a path that no longer exists, and update that entry to point to the new path instead.
+          // This way, files that have been moved have their ID preserved.
+          const fileCopies = findFileCopies(fileName, fileDate);
+          
+          if (fileCopies.length) {
+            let replaced = false;
+
+            fileCopies.forEach(file => {
+              if (!replaced) {
+                const exists = deltaFiles.added.includes(file.path) || deltaFiles.unchanged.includes(file.path) || deltaFiles.modified.includes(file.path);
+                if (!exists) {
+                  replaceStatement.run(file.id, filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry));
+                  replaced = true;
+                }
+              }
+            });
+
+            if (!replaced) {
+              insert();
+            }
+          } else {
+            insert();
+          }
         }
+
         ++processed
-        emitter.emit('progress', { path: entry.SourceFile, processed: processed, total: toProcess.length })
+        emitter.emit('progress', { path: filePath, processed: processed, total: toProcess.length })
       }).on('end', () => {
-        finished(deltaFiles);
+        finished(deltaFiles, this.deletedDb);
       });
     })
 
@@ -148,6 +198,43 @@ class Index {
     } else if (outputType === 'thumbnail') {
       this.db.prepare('UPDATE files SET processed_path_thumb = ? WHERE path = ?').run(convertPath(file.output.thumbnail.path), file.path);
     }
+  }
+}
+
+class DeletedIndex {
+  constructor (indexPath) {
+    fs.mkdirpSync(path.dirname(indexPath))
+    const parsedPath = path.parse(indexPath);
+    parsedPath.base = 'index-deleted.db';
+    const deletedIndexPath = path.join(parsedPath.dir, parsedPath.base);
+    this.db = new Database(deletedIndexPath, {})
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS files (
+        id INTEGER,
+        path TEXT UNIQUE NOT NULL,
+        file_name TEXT NOT NULL,
+        file_date INTEGER NOT NULL
+      )
+    `)
+
+    this.insertStatement = this.db.prepare('INSERT INTO files (id, path, file_name, file_date) VALUES (?, ?, ?, ?)');
+    this.selectStatement = this.db.prepare('SELECT * FROM files WHERE file_name = ? AND file_date = ?');
+    this.selectIdStatement = this.db.prepare('SELECT * FROM files WHERE id = ?');
+    this.deleteStatement = this.db.prepare('DELETE FROM files WHERE id = ?');
+  }
+
+  insert(row) {
+    if (!this.selectIdStatement.get(row.id)) {
+      this.insertStatement.run(row.id, row.path, row.file_name, row.file_date);
+    }
+  }
+
+  findFileCopies(fileName, fileDate) {
+    return this.selectStatement.all(fileName, fileDate);
+  }
+
+  remove(id) {
+    this.deleteStatement.run(id);
   }
 }
 
