@@ -23,7 +23,7 @@ const tty = require('tty')
   If --log is not specified, but the output doesn't support ANSI (e.g. non-TTY terminal, or file redirection)
   then the mode is automatically switched to "--log info"
 */
-exports.init = (logLevel, logFile) => {
+exports.init = (logLevel, logFile, logForceDefault) => {
   // if the output doesn't support ANSI codes (e.g. pipe, redirect to file)
   // then switch to full-text mode, because Listr's output won't make much sense
   if (logLevel === 'default' && !tty.isatty(process.stdout.fd)) {
@@ -31,7 +31,7 @@ exports.init = (logLevel, logFile) => {
   }
 
   // Configure the loggers
-  if (logLevel === 'default') {
+  if (logLevel === 'default' || logForceDefault) {
     configureDefaultMode(logFile)
   } else {
     configureDebugMode(logLevel)

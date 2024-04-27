@@ -193,6 +193,10 @@ const OPTIONS = {
     choices: ['default', 'info', 'debug', 'trace'],
     'default': 'default'
   },
+  'log-force-default': {
+    group: 'Misc options:',
+    description: 'Forces default logs',
+  },
 
   'usage-stats': {
     group: 'Misc options:',
