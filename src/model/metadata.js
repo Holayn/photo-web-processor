@@ -8,7 +8,7 @@ This is based on parsing "provider data" such as Exiftool
 const _ = require('lodash')
 const moment = require('moment')
 
-const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
+const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ss'
 
 class Metadata {
   constructor (exif) {
@@ -25,7 +25,7 @@ function getDate (exif) {
   const metadate = getMetaDate(exif)
   if (metadate) return metadate.valueOf()
   // otherwise, fallback to the last modified date
-  return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf()
+  return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT + 'Z').valueOf()
 }
 
 function getMetaDate (exif) {
