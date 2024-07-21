@@ -81,7 +81,7 @@ exports.build = function (opts, done) {
     {
       title: 'Handling original files',
       task: (ctx, task) => {
-        const tasks = steps.originals(ctx.files, ctx.problems, opts, task, opts.concurrency)
+        const tasks = steps.originals(ctx.files, ctx.problems, opts, task, opts.concurrency, ctx.index)
         if (!opts.dryRun) {
           return tasks
         } else {
@@ -93,7 +93,7 @@ exports.build = function (opts, done) {
     {
       title: 'Resizing images for the web, generating video covers',
       task: (ctx, task) => {
-        const tasks = steps.resize(ctx.files, ctx.problems, opts, task, opts.concurrency)
+        const tasks = steps.resize(ctx.files, ctx.problems, opts, task, opts.concurrency, ctx.index)
         if (!opts.dryRun) {
           return tasks
         } else {
@@ -116,6 +116,7 @@ exports.build = function (opts, done) {
   })
 
   tasks.run().then(ctx => {
+    ctx.index.db.close();
     done(null, {
       problems: ctx.problems,
       fixedFiles: ctx.fixedFiles,
