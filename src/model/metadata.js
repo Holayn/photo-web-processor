@@ -20,16 +20,22 @@ class Metadata {
   }
 }
 
-function getDate (exif) {
+function getDate (exif, fallbackToModifyDate = true) {
   // first, check if there's a valid date in the metadata
   const metadate = getMetaDate(exif)
   if (metadate) return metadate.valueOf()
+
   // otherwise, fallback to the last modified date
-  return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT + 'Z').valueOf()
+  if (fallbackToModifyDate) {
+    return moment(exif.File.FileModifyDate, EXIF_DATE_FORMAT + 'Z').valueOf()
+  }
+  
+  return 0;
 }
 
 function getMetaDate (exif) {
   const date = exif.EXIF?.DateTimeOriginal ||
+    exif.EXIF?.ModifyDate ||
     exif.H264?.DateTimeOriginal ||
     exif.QuickTime?.ContentCreateDate ||
     exif.QuickTime?.CreationDate ||

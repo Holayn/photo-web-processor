@@ -111,22 +111,23 @@ class Index {
         const fileDate = moment(entry.File.FileModifyDate, EXIF_DATE_FORMAT).valueOf();
         const fileName = path.basename(entry.SourceFile);
         const filePath = entry.SourceFile;
+        const fileMetaDate = getDate(entry, options.trustModifyDates);
 
         const originalPathFile = selectByPath.get(filePath);
 
         if (originalPathFile) {
-          replaceStatement.run(originalPathFile.id, filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+          replaceStatement.run(originalPathFile.id, filePath, fileName, fileDate, fileMetaDate, JSON.stringify(entry))
         } else {
           const insert = () => {
             // If matching files used to exist in the index, add them back (with the same IDs they had before).
             const deletedFiles = this.deletedDb.findFileCopies(fileName, fileDate);
             if (deletedFiles.length) {
               deletedFiles.forEach(deletedFile => {
-                insertIdStatement.run(deletedFile.id, filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry));
+                insertIdStatement.run(deletedFile.id, filePath, fileName, fileDate, fileMetaDate, JSON.stringify(entry));
                 this.deletedDb.remove(deletedFile.id);
               });
             } else {
-              insertStatement.run(filePath, fileName, fileDate, getDate(entry), JSON.stringify(entry))
+              insertStatement.run(filePath, fileName, fileDate, fileMetaDate, JSON.stringify(entry))
             }
           }
 
@@ -166,9 +167,9 @@ class Index {
     return emitter
   }
 
-  updateMetadataFields() {
+  updateMetadataFields(trustModifyDates = true) {
     this.db.prepare('SELECT * FROM files').all().forEach(file => {
-      const newDate = getDate(JSON.parse(file.metadata));
+      const newDate = getDate(JSON.parse(file.metadata), trustModifyDates);
       if (file.date !== newDate) {
         console.log(`Updating date of ${file.path}`);
       }

@@ -18,12 +18,16 @@
 
 `node bin/photo-web-processor.js --input INPUT_DIR --output OUTPUT_DIR --concurrency 4`
 
-### Starting the Job
-
-`node bin/job.js`
-
 ## Options
 
 ### Excluding Files
 
 Use `--exclude`, which accepts a glob pattern of files to exclude e.g., `my/dir/**`. The config accepts an array of patterns.
+
+### Dealing with Untrustworthy File Modify Dates
+
+There are occassions where a file does not any EXIF date. The processor will fallback to using the file's modify date as the file's meta date. 
+However, this may not always be accurate, e.g., when a file is downloaded, its modify date is set to the current system time.
+
+Therefore, set `trust-modify-dates` to `false` in order to not fallback to a file's modify date. In this case, the file's meta data will just be set to 0, and the
+file can then be dealt with appropriately.

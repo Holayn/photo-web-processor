@@ -56,6 +56,12 @@ const OPTIONS = {
     description: 'Glob pattern of files to exclude',
     type: 'array'
   },
+  'trust-modify-dates': {
+    group: 'Input options:',
+    description: 'Whether or not file modify dates are trustworthy to use as photo dates.',
+    type: 'boolean',
+    default: true,
+  },
 
   // ------------------------------------
   // Output options
