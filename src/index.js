@@ -79,6 +79,18 @@ exports.build = function (opts, done) {
       }
     },
     {
+      title: 'Relocating converted media',
+      task: (ctx, task) => {
+        if (opts.relocateConverted && !opts.dryRun) {
+          const tasks = steps.relocateConverted(ctx.files, ctx.problems, opts, task)
+          return tasks
+        } else {
+          task.skip()
+          return null
+        }
+      }
+    },
+    {
       title: 'Handling original files',
       task: (ctx, task) => {
         const tasks = steps.originals(ctx.files, ctx.problems, opts, task, opts.concurrency, ctx.index)

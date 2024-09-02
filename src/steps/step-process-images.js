@@ -1,5 +1,6 @@
 const info = require('debug')('thumbsup:info')
 const path = require('path')
+const fs = require('fs-extra')
 const actions = require('./actions')
 const { createFileProcessTask, createTasks } = require('./utils');
 
@@ -21,6 +22,14 @@ function create(files, opts, problems) {
           const action = actionMap[output.rel];
           const srcPath = path.join(opts.input, f.path);
           const destPath = path.join(opts.output, output.path);
+          
+          try {
+            const stats = fs.lstatSync(destPath);
+            if (stats.isSymbolicLink()) {
+              return;
+            }
+          } catch (e) {}
+          
           const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, () => {});
           if (task) {
             tasks[dest] = task;

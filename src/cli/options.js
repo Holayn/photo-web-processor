@@ -169,6 +169,11 @@ const OPTIONS = {
     description: 'Custom image processing arguments for GraphicsMagick',
     type: 'array'
   },
+  'relocate-converted': {
+    group: 'Output options:',
+    description: 'Relocate converted photos/videos to a different directory',
+    type: 'string'
+  },
 
 
   // ------------------------------------
