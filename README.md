@@ -31,3 +31,7 @@ However, this may not always be accurate, e.g., when a file is downloaded, its m
 
 Therefore, set `trust-modify-dates` to `false` in order to not fallback to a file's modify date. In this case, the file's meta data will just be set to 0, and the
 file can then be dealt with appropriately.
+
+## Notes
+
+- Have to regenerate symlinks if moving the output directory, because symlinks are absolute paths rather than relative. This should be fixed in the future.

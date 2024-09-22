@@ -29,8 +29,9 @@ function create(files, opts, problems) {
             } catch (err) {
               error(`Error relocating ${convertedFilePath} -> ${relocatePath}\n${err}`);
               problems.addFile(convertedFilePath);
-
+              
               done();
+              return;
             }
 
             try {
