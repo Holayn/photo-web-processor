@@ -25,11 +25,11 @@ function create(files, opts, problems) {
           action: (done) => {
             try {
               fs.mkdirsSync(path.dirname(relocatePath));
-              fs.renameSync(convertedFilePath, relocatePath);
+              fs.moveSync(convertedFilePath, relocatePath);
             } catch (err) {
               error(`Error relocating ${convertedFilePath} -> ${relocatePath}\n${err}`);
               problems.addFile(convertedFilePath);
-              
+
               done();
               return;
             }
@@ -39,7 +39,7 @@ function create(files, opts, problems) {
             } catch (err) {
               error(`Error generating symlink ${convertedFilePath} -> ${relocatePath}\n${err}`);
               problems.addFile(convertedFilePath);
-              fs.renameSync(relocatePath, convertedFilePath);
+              fs.moveSync(relocatePath, convertedFilePath);
             }
 
             done();
