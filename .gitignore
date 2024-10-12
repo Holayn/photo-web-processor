@@ -11,3 +11,4 @@ thumbsup.db
 .configs
 .env
 test/output
+test/input

@@ -25,7 +25,7 @@ function create(files, opts, problems) {
           action: (done) => {
             try {
               fs.mkdirsSync(path.dirname(relocatePath));
-              fs.moveSync(convertedFilePath, relocatePath);
+              fs.moveSync(convertedFilePath, relocatePath, { overwrite: true });
             } catch (err) {
               error(`Error relocating ${convertedFilePath} -> ${relocatePath}\n${err}`);
               problems.addFile(convertedFilePath);
