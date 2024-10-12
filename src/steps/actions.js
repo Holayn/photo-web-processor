@@ -2,6 +2,7 @@ const downsize = require('thumbsup-downsize')
 const warn = require('debug')('thumbsup:warn')
 const fs = require('fs-extra')
 const sharp = require('sharp');
+const { exec } = require('node:child_process');
 
 exports.createMap = function (opts) {
   const thumbSize = opts.thumbSize || 120
@@ -44,9 +45,12 @@ exports.createMap = function (opts) {
       if (file.isWebSupported()) {
         done();
       } else {
-        downsize.image(src, dest, {
-          quality: 100,
-        }, done);
+        exec(`magick ${src} ${dest}`, (error) => {
+          if (error) {
+            warn(err);
+          }
+          done();
+        });
       }
     },
     'photo:thumbnail': ({ src, dest, file }, done) => {
