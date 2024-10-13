@@ -35,19 +35,18 @@ function run(args) {
     try {
       const start = performance.now();
       const startTime = new Date();
-      index.build(opts, (err, result) => {
-        console.log('')
+      index.build(opts, (err, { problems, fixedFiles, converted, resized }) => {
         if (err) {
           handleError(err)
           reject();
         } else {
           // Print any problems
-          result.problems.print()
+          problems.print()
           // And then a summary of the gallery
           const stats = {
-            photos: 'TODO',
-            videos: 'TODO',
-            fixedFiles: result.fixedFiles,
+            converted,
+            resized,
+            fixedFiles,
             timings: {
               startTime,
               start,

@@ -1,4 +1,5 @@
 const info = require('debug')('thumbsup:info')
+const error = require('debug')('thumbsup:error')
 const path = require('path')
 const fs = require('fs-extra')
 const actions = require('./actions')
@@ -22,15 +23,34 @@ function create(files, opts, problems) {
           const action = actionMap[output.rel];
           const srcPath = path.join(opts.input, f.path);
           const destPath = path.join(opts.output, output.path);
-          
-          try {
-            const stats = fs.lstatSync(destPath);
-            if (stats.isSymbolicLink()) {
-              return;
+
+          const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, () => {
+            if (opts.relocateConverted) {
+              const stats = fs.lstatSync(destPath);
+              if (!stats.isSymbolicLink()) {
+                const relocatePath = path.join(opts.relocateConverted, output.path);
+
+                try {
+                  fs.mkdirsSync(path.dirname(relocatePath));
+                  fs.moveSync(destPath, relocatePath, { overwrite: true });
+                } catch (err) {
+                  error(`Error relocating ${destPath} -> ${relocatePath}\n${err}`);
+                  problems.addFile(destPath);
+    
+                  return;
+                }
+    
+                try {
+                  fs.symlinkSync(path.resolve(relocatePath), destPath);
+                } catch (err) {
+                  error(`Error generating symlink ${destPath} -> ${relocatePath}\n${err}`);
+                  problems.addFile(destPath);
+                  fs.moveSync(relocatePath, destPath);
+                }
+              }
             }
-          } catch (e) {}
-          
-          const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, () => {});
+          });
+
           if (task) {
             tasks[dest] = task;
             sourceFiles.add(sourceFile);

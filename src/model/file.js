@@ -21,7 +21,7 @@ const EXIF_DATE_FORMAT = 'YYYY:MM:DD HH:mm:ssZ'
 var index = 0
 
 class File {
-  constructor (exif, meta, opts) {
+  constructor (exif, meta, opts, modified, added) {
     this.id = ++index
     this.path = exif.SourceFile
     this.filename = path.basename(exif.SourceFile)
@@ -33,6 +33,8 @@ class File {
     this.output = output.paths(this.path, this.type, opts || {})
     this.urls = _.mapValues(this.output, o => url.fromPath(o.path))
     this.meta = meta
+    this.modified = modified;
+    this.added = added;
   }
 
   isWebSupported() {

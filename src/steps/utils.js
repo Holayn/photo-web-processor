@@ -25,7 +25,7 @@ function createFileProcessTask(action, srcPath, destPath, file, output, problems
   if (action) {
     debug(`Comparing ${file.path} (${file.date}) and ${output.path} (${destDate})`)
   }
-  if (action && file.date > destDate) {
+  if (action && ((file.date > destDate) || (file.modified || file.added))) {
     const task = {
       file,
       dest: destPath,

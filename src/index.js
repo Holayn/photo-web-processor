@@ -13,10 +13,28 @@ exports.build = function (opts, done) {
     {
       title: 'Indexing folder',
       task: (ctx) => {
-        return steps.index(opts, (err, files, index) => {
+        return steps.index(opts, (err, files, index, deleted) => {
           if (!err) {
             ctx.files = files;
             ctx.index = index;
+
+            // Clean up converted and resizes for files that have been deleted.
+            deleted.forEach(f => {
+              const outputs = ['conversion', 'original', 'large', 'small'];
+              outputs.forEach(outputType => {
+                const output = f.output[outputType];
+          
+                if (output) {
+                  const destPath = path.join(opts.output, output.path);
+                  fs.removeSync(destPath);
+
+                  if (opts.relocateConverted) {
+                    const relocatePath = path.join(opts.relocateConverted, output.path);
+                    fs.removeSync(relocatePath);
+                  }
+                }
+              });
+            });
           }
         })
       }
@@ -58,6 +76,7 @@ exports.build = function (opts, done) {
       task: (ctx, task) => {
         ctx.problems = new Problems()
         const tasks = steps.processImages(ctx.files, ctx.problems, opts, task, opts.concurrency)
+        ctx.converted = tasks.jobsTotal;
         if (!opts.dryRun) {
           return tasks
         } else {
@@ -69,20 +88,9 @@ exports.build = function (opts, done) {
     {
       title: 'Converting videos to web-friendly',
       task: (ctx, task) => {
-        const tasks = steps.processVideos(ctx.files, ctx.problems, opts, task)
+        const tasks = steps.processVideos(ctx.files, ctx.problems, opts, task);
+        ctx.converted += tasks.jobsTotal;
         if (!opts.dryRun) {
-          return tasks
-        } else {
-          task.skip()
-          return null
-        }
-      }
-    },
-    {
-      title: 'Relocating converted media',
-      task: (ctx, task) => {
-        if (opts.relocateConverted && !opts.dryRun) {
-          const tasks = steps.relocateConverted(ctx.files, ctx.problems, opts, task)
           return tasks
         } else {
           task.skip()
@@ -106,6 +114,7 @@ exports.build = function (opts, done) {
       title: 'Resizing images for the web, generating video covers',
       task: (ctx, task) => {
         const tasks = steps.resize(ctx.files, ctx.problems, opts, task, opts.concurrency, ctx.index)
+        ctx.resized = tasks.jobsTotal;
         if (!opts.dryRun) {
           return tasks
         } else {
@@ -132,6 +141,8 @@ exports.build = function (opts, done) {
     done(null, {
       problems: ctx.problems,
       fixedFiles: ctx.fixedFiles,
+      converted: ctx.converted,
+      resized: ctx.resized,
     })
   }).catch(err => {
     done(err)

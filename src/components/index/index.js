@@ -67,6 +67,12 @@ class Index {
       // emit every file in the index
       for (const row of entries) {
         if (deleted.has(row.path)) { 
+          emitter.emit('deleted', {
+            path: row.path,
+            timestamp: new Date(row.file_date),
+            metadata: JSON.parse(row.metadata),
+          });
+
           deletedIndex.insert(row);
           deleteStatement.run(row.id);
           continue; 
@@ -75,8 +81,11 @@ class Index {
         emitter.emit('file', {
           path: row.path,
           timestamp: new Date(row.file_date),
-          metadata: JSON.parse(row.metadata)
-        })
+          metadata: JSON.parse(row.metadata),
+          modified: deltaFiles.modified.includes(row.path),
+          added: deltaFiles.added.includes(row.path),
+          deleted: deltaFiles.deleted.includes(row.path),
+        });
       }
       // emit the final count
       const result = countStatement.get()

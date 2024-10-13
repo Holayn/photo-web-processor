@@ -40,14 +40,17 @@ exports.createMap = function (opts) {
   }
   return {
     'fs:copy': (task, done) => fs.copy(task.src, task.dest, done),
-    'fs:symlink': (task, done) => fs.symlink(task.src, task.dest, done),
+    'fs:symlink': (task, done) => {
+      fs.removeSync(task.dest);
+      fs.symlink(task.src, task.dest, done)
+    },
     'photo:conversion': ({ src, dest, file }, done) => {
       if (file.isWebSupported()) {
         done();
       } else {
         exec(`magick ${src} ${dest}`, (error) => {
           if (error) {
-            warn(err);
+            warn(error);
           }
           done();
         });

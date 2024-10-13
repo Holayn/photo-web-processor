@@ -15,7 +15,8 @@ exports.run = function (opts, callback) {
   return new Observable(observer => {
     const index = new Index(opts.databaseFile)
     const emitter = index.update(opts.input, opts)
-    const files = []
+    const files = [];
+    const deleted = [];
 
     emitter.on('stats', stats => {
       info('Differences between disk and index', stats)
@@ -34,18 +35,21 @@ exports.run = function (opts, callback) {
     // emitted for every file once indexing is finished
     emitter.on('file', file => {
       const meta = new Metadata(file.metadata, opts)
-      const model = new File(file.metadata, meta, opts)
+      const model = new File(file.metadata, meta, opts, file.modified, file.added)
       // only include valid photos and videos (i.e. exiftool recognised the format)
       if (model.type !== 'unknown') {
         files.push(model)
       }
+    });
 
-      callback(null, files, index)
-      observer.complete()
-    })
+    emitter.on('deleted', file => {
+      const meta = new Metadata(file.metadata, opts);
+      const model = new File(file.metadata, meta, opts);
+      deleted.push(model);
+    });
 
     emitter.on('done', stats => {
-      callback(null, files, index)
+      callback(null, files, index, deleted)
       observer.complete()
     })
   })
