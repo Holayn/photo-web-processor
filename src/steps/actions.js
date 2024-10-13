@@ -48,7 +48,7 @@ exports.createMap = function (opts) {
       if (file.isWebSupported()) {
         done();
       } else {
-        exec(`magick ${src} ${dest}`, (error) => {
+        exec(`magick "${src}" "${dest}"`, (error) => {
           if (error) {
             warn(error);
           }
