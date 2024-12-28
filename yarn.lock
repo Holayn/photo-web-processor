@@ -3406,7 +3406,7 @@ __metadata:
     slugify: ^1.5.0
     standard: ^12.0.1
     through2: ^4.0.2
-    thumbsup-downsize: "https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha2.tar.gz"
+    thumbsup-downsize: "https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha3.tar.gz"
     url-join: ^4.0.1
     yargs: ^16.2.0
     zen-observable: ^0.8.15
@@ -4405,16 +4405,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha2.tar.gz":
+"thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha3.tar.gz":
   version: 2.5.2
-  resolution: "thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha2.tar.gz"
+  resolution: "thumbsup-downsize@https://github.com/Holayn/downsize/archive/refs/tags/v2.5-alpha3.tar.gz"
   dependencies:
     async: ^3.2.5
     debug: ^4.3.4
     gm: ^1.25.0
     split: ^1.0.1
     tmp: ^0.2.1
-  checksum: 57145c322d58e3fba37eaf7d16d728d30be2b81789fbc4ac56aae6330141686f7e1a983fdfa15b1c41ab65c1a2955b6974ac720d2d0d2ee11ed3b8f90d59bc41
+  checksum: f339649aab613e4f9d86472df2cc720df0b7e9ee055ee8d43abf9c0b9ddbd1c43030f556bcfa8f1d3b96b0724d68fc5e3125e21a2caacfd8c4a0423838490d2d
   languageName: node
   linkType: hard
 
