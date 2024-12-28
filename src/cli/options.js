@@ -201,12 +201,8 @@ const OPTIONS = {
   'log': {
     group: 'Misc options:',
     description: 'Print a detailed text log',
-    choices: ['default', 'info', 'debug', 'trace'],
-    'default': 'default'
-  },
-  'log-force-default': {
-    group: 'Misc options:',
-    description: 'Forces default logs',
+    choices: ['default', 'info', 'debug', 'trace', 'warn'],
+    default: 'default'
   },
 
   'usage-stats': {
