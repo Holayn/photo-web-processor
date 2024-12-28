@@ -30,6 +30,7 @@ class File {
     this.origType = exif.File.MIMEType;
     this.extension = path.extname(this.path);
     this.isVideo = (this.type === 'video');
+    this.timescale = exif.QuickTime?.TimeScale;
     this.cameraModel = exif.QuickTime?.Model || 'unknown';
     this.output = output.paths(this.path, this.type, opts || {})
     this.urls = _.mapValues(this.output, o => url.fromPath(o.path))
@@ -48,7 +49,12 @@ class File {
 
   isHdrVideo() {
     // No way to tell. Have to just assume iPhone 16 always shoots video in HDR.
-    return this.isVideo && this.cameraModel.includes('iPhone 16');
+    // Slow-mo videos are not shot in HDR.
+    return this.isVideo && this.cameraModel.includes('iPhone 16') && !this.isSlowMo();
+  }
+
+  isSlowMo() {
+    return this.timescale >= 48000;
   }
 
   isAppleLivePhoto() {
