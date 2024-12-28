@@ -33,10 +33,10 @@ exports.createMap = function (opts) {
     seek,
   })
   const videoOpts = {
-    extraFfmpegArgs: ['-pix_fmt', 'yuv420p'],
     format: opts.videoFormat,
     quality: opts.videoQuality || 75,
-    bitrate: opts.videoBitrate
+    keepMetadata: true,
+    framerate: 0,
   }
   return {
     'fs:copy': (task, done) => fs.copy(task.src, task.dest, done),
@@ -147,7 +147,7 @@ exports.createMap = function (opts) {
       if (file.isWebSupported()) {
         done();
       } else {
-        return downsize.video(src, dest, videoOpts, done);
+        return downsize.video(src, dest, { ...videoOpts, hdr: file.isHdrVideo() }, done);
       }
     },
   }
