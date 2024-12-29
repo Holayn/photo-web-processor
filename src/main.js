@@ -35,7 +35,7 @@ function run(args) {
     try {
       const start = performance.now();
       const startTime = new Date();
-      index.build(opts, (err, { problems, fixedFiles, converted, resized }) => {
+      index.build(opts, (err, { problems, converted, resized }) => {
         if (err) {
           handleError(err)
           reject();
@@ -46,7 +46,6 @@ function run(args) {
           const stats = {
             converted,
             resized,
-            fixedFiles,
             timings: {
               startTime,
               start,

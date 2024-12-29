@@ -33,13 +33,6 @@ const getSuccessText = stats => {
   Converted ${stats.converted} files
   Performed ${stats.resized} resizes
   `;
-  
-  if (successText) {
-    successText += `${stats.fixedFiles?.length ? `
-    Fixed the following files: 
-    ${stats.fixedFiles.join(', ')}
-    ` : ''}`;
-  }
 
   return successText;
 }
