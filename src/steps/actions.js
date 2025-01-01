@@ -135,14 +135,14 @@ exports.createMap = function (opts) {
     'video:resized': ({ src, dest, file }, done) => {
       if (file.isWebSupported()) {
         // Return original video, don't bother resizing it.
-        fs.removeSync(task.dest);
+        fs.removeSync(dest);
         return fs.symlink(src, dest, done);
       } else {
         return downsize.video(src, dest, videoOpts, done);
       }
     },
     'video:large': ({ src, dest, file }, done) => {
-      fs.removeSync(task.dest);
+      fs.removeSync(dest);
       return fs.symlink(src, dest, done);
     },
     'video:conversion': ({ src, dest, file }, done) => {
