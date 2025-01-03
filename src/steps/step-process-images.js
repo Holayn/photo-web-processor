@@ -26,6 +26,12 @@ function create(files, opts, problems) {
 
           const { dest, sourceFile, task } = createFileProcessTask(action, srcPath, destPath, f, output, problems, () => {
             if (opts.relocateConverted) {
+              if (!fs.existsSync(destPath)) {
+                error(`${destPath} missing, conversion probably failed.`);
+                problems.addFile(destPath);
+                return;
+              }
+
               const stats = fs.lstatSync(destPath);
               if (!stats.isSymbolicLink()) {
                 const relocatePath = path.join(opts.relocateConverted, output.path);
