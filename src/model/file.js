@@ -43,6 +43,9 @@ class File {
     if (this.isVideo) {
       return !!this.extension.match(BROWSER_SUPPORTED_VIDEO_EXTS);
     } else {
+      if (this.origType) {
+        return !!this.origType.match(BROWSER_SUPPORTED_PHOTO_EXTS);
+      }
       return !!this.extension.match(BROWSER_SUPPORTED_PHOTO_EXTS);
     }
   }
