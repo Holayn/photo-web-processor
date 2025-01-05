@@ -87,6 +87,7 @@ function configureDebugMode (logLevel) {
   if (logLevel === 'trace') debug.enable('*')
   if (logLevel === 'debug') debug.enable('thumbsup:error,thumbsup:warn,thumbsup:info,thumbsup:debug')
   if (logLevel === 'info') debug.enable('thumbsup:error,thumbsup:warn,thumbsup:info')
+  if (logLevel === 'warn') debug.enable('thumbsup:error,thumbsup:warn');
 
   // capture any additional console.log() calls, including Listr task updates
   console.log = require('debug')('thumbsup:info')

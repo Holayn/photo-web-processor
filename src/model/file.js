@@ -29,7 +29,9 @@ class File {
     this.type = mediaType(exif)
     this.origType = exif.File.MIMEType;
     this.extension = path.extname(this.path);
-    this.isVideo = (this.type === 'video')
+    this.isVideo = (this.type === 'video');
+    this.timescale = exif.QuickTime?.TimeScale;
+    this.cameraModel = exif.QuickTime?.Model || 'unknown';
     this.output = output.paths(this.path, this.type, opts || {})
     this.urls = _.mapValues(this.output, o => url.fromPath(o.path))
     this.meta = meta
@@ -41,8 +43,21 @@ class File {
     if (this.isVideo) {
       return !!this.extension.match(BROWSER_SUPPORTED_VIDEO_EXTS);
     } else {
+      if (this.origType) {
+        return !!this.origType.match(BROWSER_SUPPORTED_PHOTO_EXTS);
+      }
       return !!this.extension.match(BROWSER_SUPPORTED_PHOTO_EXTS);
     }
+  }
+
+  isHdrVideo() {
+    // No way to tell. Have to just assume iPhone 16 always shoots video in HDR.
+    // Slow-mo videos are not shot in HDR.
+    return this.isVideo && this.cameraModel.includes('iPhone 16') && !this.isSlowMo();
+  }
+
+  isSlowMo() {
+    return this.timescale >= 48000;
   }
 
   isAppleLivePhoto() {

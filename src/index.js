@@ -55,23 +55,6 @@ exports.build = function (opts, done) {
       },
     },
     {
-      title: 'Fixing photos with bad extensions',
-      task: (ctx) => {
-        ctx.fixedFiles = [];
-        ctx.files.forEach(f => {
-          if ((f.extension.includes('jpg') || f.extension.includes('jpeg')) && f.origType.includes('heic')) {
-            const origFileDir = path.dirname(f.path);
-            const origFileName = path.basename(f.filename, f.extension);
-            const newFile = `${origFileDir}/${origFileName}.HEIC`;
-            fs.renameSync(path.join(opts.input, f.path), path.join(opts.input, newFile));
-            f.path = newFile;
-            f.extension = '.HEIC';
-            ctx.fixedFiles.push(f.path);
-          }
-        });
-      },
-    },
-    {
       title: 'Converting photos to web-friendly',
       task: (ctx, task) => {
         ctx.problems = new Problems()
@@ -140,7 +123,6 @@ exports.build = function (opts, done) {
     ctx.index.db.close();
     done(null, {
       problems: ctx.problems,
-      fixedFiles: ctx.fixedFiles,
       converted: ctx.converted,
       resized: ctx.resized,
     })
