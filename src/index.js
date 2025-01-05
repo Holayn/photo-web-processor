@@ -17,24 +17,10 @@ exports.build = function (opts, done) {
           if (!err) {
             ctx.files = files;
             ctx.index = index;
+            ctx.cleanup = [];
 
             // Clean up converted and resizes for files that have been deleted.
-            deleted.forEach(f => {
-              const outputs = ['conversion', 'original', 'large', 'small'];
-              outputs.forEach(outputType => {
-                const output = f.output[outputType];
-          
-                if (output) {
-                  const destPath = path.join(opts.output, output.path);
-                  fs.removeSync(destPath);
-
-                  if (opts.relocateConverted) {
-                    const relocatePath = path.join(opts.relocateConverted, output.path);
-                    fs.removeSync(relocatePath);
-                  }
-                }
-              });
-            });
+            ctx.cleanup.push(...deleted);
           }
         })
       }
@@ -42,16 +28,31 @@ exports.build = function (opts, done) {
     {
       title: 'Performing additional filtering',
       task: (ctx) => {
-        const files = [];
-        ctx.files.forEach(f => {
-          if (f.isAppleLivePhoto()) {
-            // Clear out any paths of previous live photos that may have set due to being processed.
-            ctx.index.db.prepare('UPDATE files SET processed = 0 WHERE path = ?').run(f.path);
-          } else {
-            files.push(f);
-          }
-        });
+        const { files, cleanup, duplicates } = steps.filter(ctx.files, ctx.index);
         ctx.files = files;
+        ctx.cleanup.push(...cleanup);
+        ctx.duplicates = duplicates;
+      },
+    },
+    {
+      title: 'Cleaning up unneeded files',
+      task: (ctx) => {
+        ctx.cleanup.forEach(f => {
+          const outputs = ['conversion', 'original', 'large', 'small', 'thumbnail'];
+          outputs.forEach(outputType => {
+            const output = f.output[outputType];
+      
+            if (output) {
+              const destPath = path.join(opts.output, output.path);
+              fs.removeSync(destPath);
+
+              if (opts.relocateConverted) {
+                const relocatePath = path.join(opts.relocateConverted, output.path);
+                fs.removeSync(relocatePath);
+              }
+            }
+          });
+        });
       },
     },
     {
@@ -125,6 +126,7 @@ exports.build = function (opts, done) {
       problems: ctx.problems,
       converted: ctx.converted,
       resized: ctx.resized,
+      duplicates: ctx.duplicates,
     })
   }).catch(err => {
     done(err)

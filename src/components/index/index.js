@@ -60,7 +60,7 @@ class Index {
       databaseMap[row.path] = row.file_date
     }
 
-    function finished (deltaFiles, deletedIndex) {
+    function finished (deltaFiles, deletedIndex, sizeMap) {
       const deleted = new Set(deltaFiles.deleted);
 
       const entries = selectMetadata.all();
@@ -85,6 +85,7 @@ class Index {
           modified: deltaFiles.modified.includes(row.path),
           added: deltaFiles.added.includes(row.path),
           deleted: deltaFiles.deleted.includes(row.path),
+          size: sizeMap[row.path],
         });
       }
       // emit the final count
@@ -93,7 +94,7 @@ class Index {
     }
 
     // find all files on disk
-    globber.find(mediaFolder, options, (err, diskMap) => {
+    globber.find(mediaFolder, options, (err, diskMap, sizeMap) => {
       if (err) return console.error('error', err)
 
       // calculate the difference: which files have been added, modified, etc
@@ -110,7 +111,7 @@ class Index {
       var processed = 0
       const toProcess = _.union(deltaFiles.added, deltaFiles.modified)
       if (toProcess.length === 0) {
-        return finished(deltaFiles, this.deletedDb)
+        return finished(deltaFiles, this.deletedDb, sizeMap)
       }
 
       // call <exiftool> on added and modified files
@@ -169,7 +170,7 @@ class Index {
         ++processed
         emitter.emit('progress', { path: filePath, processed: processed, total: toProcess.length })
       }).on('end', () => {
-        finished(deltaFiles, this.deletedDb);
+        finished(deltaFiles, this.deletedDb, sizeMap);
       });
     })
 

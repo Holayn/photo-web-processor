@@ -25,16 +25,20 @@ ${list.join('\n')}
 `
 
 const getSuccessText = stats => {
-  let successText = `
-  Images/videos processed successfully!
-  Start: ${stats.timings.startTime}
-  End: ${new Date()}
-  Total MS: ${stats.timings.end - stats.timings.start}ms
-  Converted ${stats.converted} files
-  Performed ${stats.resized} resizes
-  `;
+  let successText = `Images/videos processed successfully!
+Start: ${stats.timings.startTime}
+End: ${new Date()}
+Total MS: ${stats.timings.end - stats.timings.start}ms
+Converted ${stats.converted} files
+Performed ${stats.resized} resizes`;
 
-  return successText;
+  if (stats.duplicates) {
+    successText += `\nSkipped ${Object.keys(stats.duplicates).length} duplicates`
+  }
+
+  return `
+${successText}
+  `;
 }
 
 exports.SUCCESS = (stats) => box(getSuccessText(stats));

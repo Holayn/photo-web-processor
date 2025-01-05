@@ -14,7 +14,8 @@ const RAW_PHOTO_EXT = [
   for all the media files in the target folder
 */
 exports.find = function (rootFolder, options, callback) {
-  const entries = {}
+  const entries = {};
+  const sizes = {};
   const pattern = new GlobPattern({
     include: (options.include && options.include.length > 0) ? options.include : '**/**',
     exclude: options.exclude || [],
@@ -27,9 +28,12 @@ exports.find = function (rootFolder, options, callback) {
     basePath: '',
     sep: '/'
   })
-  stream.on('data', stats => { entries[stats.path] = stats.mtime.getTime() })
+  stream.on('data', stats => { 
+    entries[stats.path] = stats.mtime.getTime();
+    sizes[stats.path] = stats.size;
+  })
   stream.on('error', err => warn(err.message))
-  stream.on('end', () => callback(null, entries))
+  stream.on('end', () => callback(null, entries, sizes))
 }
 
 exports.supportedExtensions = function (options) {
