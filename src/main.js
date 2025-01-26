@@ -35,7 +35,7 @@ function run(args) {
     try {
       const start = performance.now();
       const startTime = new Date();
-      index.build(opts, (err, { problems, converted, resized, duplicates } = {}) => {
+      index.build(opts, (err, { problems, converted, resized } = {}) => {
         if (err) {
           handleError(err)
           reject();
@@ -51,7 +51,6 @@ function run(args) {
               start,
               end: performance.now(),
             },
-            duplicates,
           }
           console.log(messages.SUCCESS(stats) + '\n')
           resolve();

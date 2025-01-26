@@ -28,10 +28,9 @@ exports.build = function (opts, done) {
     {
       title: 'Performing additional filtering',
       task: (ctx) => {
-        const { files, cleanup, duplicates } = steps.filter(ctx.files, ctx.index);
+        const { files, cleanup } = steps.filter(ctx.files, ctx.index);
         ctx.files = files;
         ctx.cleanup.push(...cleanup);
-        ctx.duplicates = duplicates;
       },
     },
     {
@@ -126,7 +125,6 @@ exports.build = function (opts, done) {
       problems: ctx.problems,
       converted: ctx.converted,
       resized: ctx.resized,
-      duplicates: ctx.duplicates,
     })
   }).catch(err => {
     done(err)

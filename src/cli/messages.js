@@ -32,10 +32,6 @@ Total MS: ${stats.timings.end - stats.timings.start}ms
 Converted ${stats.converted} files
 Performed ${stats.resized} resizes`;
 
-  if (stats.duplicates) {
-    successText += `\nSkipped ${Object.keys(stats.duplicates).length} duplicates`
-  }
-
   return `
 ${successText}
   `;
