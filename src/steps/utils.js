@@ -2,20 +2,31 @@ const debug = require('debug')('thumbsup:debug')
 const error = require('debug')('thumbsup:error')
 const fs = require('fs-extra')
 const path = require('path')
-const ListrWorkQueue = require('../components/listr-work-queue/index')
 
-function createTasks(jobs, opts, parentTask, concurrency) {
-  // wrap each job in a Listr task that returns a Promise
-  const tasks = jobs.map(job => listrTaskFromJob(job, opts.output));
-  const originalTaskTitle = parentTask.title;
-  const listr = new ListrWorkQueue(tasks, {
-    concurrent: concurrency || 1,
-    update: (done, total) => {
-      const progress = done === total ? '' : `(${done}/${total})`
-      parentTask.title = `${originalTaskTitle}: Processing media ${progress}`
+function createTasks(jobs, opts, parentTask, concurrency = 1) {
+  const originalParentTitle = parentTask.title;
+  const total = jobs.length;
+  let done = 0;
+
+  return parentTask.newListr(jobs.map(job => ({
+    title: `${job.rel}: ${path.relative(opts.output, job.dest)}`,
+    task: () => {
+      return new Promise((resolve, reject) => {
+        job.action(err => {
+          if (err) {
+            reject(err);
+          } else {
+            done += 1;
+            const progress = done === total ? '' : `(${done}/${total})`
+            parentTask.title = `${originalParentTitle}: Processing media ${progress}`
+            resolve();
+          }
+        });
+      });
     }
-  })
-  return listr
+  })), {
+    concurrent: concurrency,
+  });
 }
 
 function createFileProcessTask(action, srcPath, destPath, file, output, problems, onFileProcessed) {
@@ -60,22 +71,6 @@ function createFileProcessTask(action, srcPath, destPath, file, output, problems
 
 function listrTaskFromJob (job, outputRoot) {
   const relative = path.relative(outputRoot, job.dest)
-  return {
-    title: `${job.rel}: ${relative}`,
-    task: (ctx, task) => {
-      return new Promise((resolve, reject) => {
-        var progressEmitter = job.action(err => {
-          err ? reject(err) : resolve()
-        })
-        // render progress percentage for videos
-        if (progressEmitter) {
-          progressEmitter.on('progress', (percent) => {
-            task.title = `${relative} (${percent}%)`
-          })
-        }
-      })
-    }
-  }
 }
 
 function modifiedDate (filepath) {

@@ -10,7 +10,7 @@ function run(args) {
 
   // Only require the index after logging options have been set
   fs.mkdirpSync(opts.output)
-  require('../bin/log').init(opts.log, opts.logFile, opts.logForceDefault)
+  require('../bin/log').init(opts.log, opts.logFile)
   const index = require('./index')
 
   // Catch all exceptions and exit gracefully

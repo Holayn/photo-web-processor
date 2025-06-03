@@ -1,4 +1,4 @@
-const Listr = require('listr')
+const { Listr } = require('listr2')
 const yargs = require('yargs');
 const fs = require('fs');
 const Index = require('../src/components/index/index')

@@ -1,4 +1,4 @@
-const Listr = require('listr')
+const { Listr } = require('listr2')
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -7,7 +7,6 @@ const Problems = require('./problems')
 
 exports.build = function (opts, done) {
   // How to render tasks
-  const renderer = (opts.log === 'default') ? 'update' : 'verbose'
   // List of high level tasks
   const tasks = new Listr([
     {
@@ -114,17 +113,14 @@ exports.build = function (opts, done) {
         });
       },
     },
-  ], {
-    renderer: renderer,
-    dateFormat: false
-  })
+  ])
 
   tasks.run().then(ctx => {
     ctx.index.db.close();
     done(null, {
       problems: ctx.problems,
-      converted: ctx.converted,
-      resized: ctx.resized,
+      converted: ctx.converted || 0,
+      resized: ctx.resized || 0,
     })
   }).catch(err => {
     done(err)
