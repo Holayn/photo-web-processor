@@ -23,4 +23,8 @@ module.exports = class Problems {
       warn('The following sources files were not processed:\n' + paths.join(','))
     }
   }
+
+  hasProblems() {
+    return !!Object.keys(this.files).length;
+  }
 }

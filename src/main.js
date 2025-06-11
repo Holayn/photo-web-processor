@@ -53,7 +53,11 @@ function run(args) {
             },
           }
           console.log(messages.SUCCESS(stats) + '\n')
-          resolve();
+          if (problems.hasProblems()) {
+            reject();
+          } else {
+            resolve();
+          }
         }
       });
     } catch (err) {
