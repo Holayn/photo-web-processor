@@ -69,10 +69,6 @@ function createFileProcessTask(action, srcPath, destPath, file, output, problems
   return {};
 }
 
-function listrTaskFromJob (job, outputRoot) {
-  const relative = path.relative(outputRoot, job.dest)
-}
-
 function modifiedDate (filepath) {
   try {
     return fs.statSync(filepath).mtime.getTime()

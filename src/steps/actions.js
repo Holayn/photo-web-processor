@@ -33,9 +33,9 @@ exports.createMap = function (opts) {
     seek,
   })
   const videoOpts = {
+    extraFfmpegArgs: ['-pix_fmt', 'yuv420p'],
     format: opts.videoFormat,
     quality: opts.videoQuality || 75,
-    keepMetadata: true,
     framerate: 0,
   }
   return {
@@ -131,17 +131,7 @@ exports.createMap = function (opts) {
     },
     'video:thumbnail': (task, done) => downsize.still(task.src, task.dest, thumbnail, done),
     'video:small': (task, done) => downsize.still(task.src, task.dest, small, done),
-    'video:poster': (task, done) => downsize.still(task.src, task.dest, large, done),
-    'video:resized': ({ src, dest, file }, done) => {
-      if (file.isWebSupported()) {
-        // Return original video, don't bother resizing it.
-        fs.removeSync(dest);
-        return fs.symlink(src, dest, done);
-      } else {
-        return downsize.video(src, dest, videoOpts, done);
-      }
-    },
-    'video:large': ({ src, dest, file }, done) => {
+    'video:large': ({ src, dest }, done) => {
       fs.removeSync(dest);
       return fs.symlink(src, dest, done);
     },
@@ -149,7 +139,7 @@ exports.createMap = function (opts) {
       if (file.isWebSupported()) {
         done();
       } else {
-        return downsize.video(src, dest, { ...videoOpts, hdr: file.isHdrVideo() }, done);
+        return downsize.video(src, dest, videoOpts, done);
       }
     },
   }

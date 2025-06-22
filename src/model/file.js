@@ -53,16 +53,6 @@ class File {
     }
   }
 
-  isHdrVideo() {
-    // No way to tell. Have to just assume iPhone 16 always shoots video in HDR.
-    // Slow-mo videos are not shot in HDR.
-    return this.isVideo && this.cameraModel.includes('iPhone 16') && !this.isSlowMo();
-  }
-
-  isSlowMo() {
-    return this.timescale >= 48000;
-  }
-
   isAppleLivePhoto() {
     return this.isVideo && this.meta.appleLivePhoto;
   }
