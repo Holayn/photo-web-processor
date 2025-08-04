@@ -28,8 +28,14 @@ class Index {
         processed_path_large TEXT, 
         processed_path_original TEXT,
         processed_path_thumb TEXT
-      )
-    `)
+      );
+    `);
+
+    try {
+      this.db.exec(`
+        ALTER TABLE files ADD COLUMN created_at INTEGER;
+      `);
+    } catch (e) {}
 
     this.deletedDb = new DeletedIndex(indexPath);
   }
@@ -39,13 +45,14 @@ class Index {
   */
   update (mediaFolder, options = {}) {
     // will emit many different events
-    const emitter = new EventEmitter()
+    const emitter = new EventEmitter();
+    const createdAt = new Date().getTime();
 
     // prepared database statements
     const selectStatement = this.db.prepare('SELECT path, file_date FROM files')
-    const insertStatement = this.db.prepare('INSERT INTO files (path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?)')
-    const insertIdStatement = this.db.prepare('INSERT INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
-    const replaceStatement = this.db.prepare('REPLACE INTO files (id, path, file_name, file_date, date, metadata) VALUES (?, ?, ?, ?, ?, ?)')
+    const insertStatement = this.db.prepare(`INSERT INTO files (path, file_name, file_date, date, metadata, created_at) VALUES (?, ?, ?, ?, ?, ${createdAt})`)
+    const insertIdStatement = this.db.prepare(`INSERT INTO files (id, path, file_name, file_date, date, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?, ${createdAt})`)
+    const replaceStatement = this.db.prepare(`REPLACE INTO files (id, path, file_name, file_date, date, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?, ${createdAt})`)
     const deleteStatement = this.db.prepare('DELETE FROM files WHERE id = ?');
     const countStatement = this.db.prepare('SELECT COUNT(*) AS count FROM files')
     const selectMetadata = this.db.prepare('SELECT * FROM files')
