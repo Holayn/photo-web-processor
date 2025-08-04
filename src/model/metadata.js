@@ -20,7 +20,7 @@ class Metadata {
   }
 }
 
-function getDate (exif, fallbackToModifyDate = true) {
+function getDate (exif, fallbackToModifyDate = false) {
   // first, check if there's a valid date in the metadata
   const metadate = getMetaDate(exif)
   if (metadate) return metadate.valueOf()

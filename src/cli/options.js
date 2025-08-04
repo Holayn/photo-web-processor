@@ -60,7 +60,7 @@ const OPTIONS = {
     group: 'Input options:',
     description: 'Whether or not file modify dates are trustworthy to use as photo dates.',
     type: 'boolean',
-    default: true,
+    default: false,
   },
 
   // ------------------------------------
